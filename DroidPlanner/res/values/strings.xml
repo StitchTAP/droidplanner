@@ -357,5 +357,9 @@
     <string name="msg_connect_first">Please connect first</string>
     <string name="mode1_throttle_on_right_stick">Mode 1: Throttle on RIGHT stick</string>
     <string name="mode2_throttle_on_left_stick">Mode 2: Throttle on LEFT stick</string>
+    <string name="ag_mission_abort_and_RTL">Abort Mission &amp; Return To Home</string>
+    <string name="ag_mission_control_emergency_land">Emergency Land</string>
+    <string name="ag_mission_control_set_flight_path">Set Flight Path</string>
+    <string name="ag_mission_control_commence_flight">Commence Flight</string>
 
 </resources>
