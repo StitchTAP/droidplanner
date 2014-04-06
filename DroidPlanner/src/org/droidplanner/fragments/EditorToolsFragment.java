@@ -16,7 +16,7 @@ import android.widget.RadioGroup;
 public class EditorToolsFragment extends Fragment implements OnClickListener, OnLongClickListener {
 
 	public enum EditorTools {
-		MARKER, DRAW, POLY, TRASH, NONE
+		MARKER, DRAW, POLY, RECT, TRASH, NONE
 	}
 
 	public interface OnEditorToolSelected {
@@ -33,7 +33,7 @@ public class EditorToolsFragment extends Fragment implements OnClickListener, On
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_editor_tools, container,
+		View view = inflater.inflate(R.layout.ag_fragment_editor_tools, container,
 				false);
 
         mEditorRadioGroup = (RadioGroup) view.findViewById(R.id.editor_tools_layout);
@@ -43,10 +43,12 @@ public class EditorToolsFragment extends Fragment implements OnClickListener, On
                 .editor_tools_marker);
         final RadioButtonCenter buttonPoly = (RadioButtonCenter) view.findViewById(R.id
                 .editor_tools_poly);
+        final RadioButtonCenter buttonRect = (RadioButtonCenter) view.findViewById(R.id
+                .editor_tools_rect);
         final RadioButtonCenter buttonTrash = (RadioButtonCenter) view.findViewById(R.id
                 .editor_tools_trash);
         
-		for (View vv : new View[] { buttonDraw, buttonMarker, buttonPoly,
+		for (View vv : new View[] { buttonDraw, buttonMarker, buttonPoly, buttonRect,
 				buttonTrash }) {
 			vv.setOnClickListener(this);
 			vv.setOnLongClickListener(this);
@@ -76,6 +78,9 @@ public class EditorToolsFragment extends Fragment implements OnClickListener, On
 		case R.id.editor_tools_poly:
 			newTool = EditorTools.POLY;
 			break;
+		case R.id.editor_tools_rect:
+			newTool = EditorTools.RECT;
+			break;
 		case R.id.editor_tools_trash:
 			newTool = EditorTools.TRASH;
 			break;
@@ -101,6 +106,9 @@ public class EditorToolsFragment extends Fragment implements OnClickListener, On
 		case R.id.editor_tools_poly:
 			newTool = EditorTools.POLY;
 			break;
+		case R.id.editor_tools_rect:
+			newTool = EditorTools.RECT;
+			break;
 		case R.id.editor_tools_trash:
 			newTool = EditorTools.TRASH;
 			break;
@@ -109,6 +117,7 @@ public class EditorToolsFragment extends Fragment implements OnClickListener, On
 			newTool = EditorTools.NONE;
 			mEditorRadioGroup.clearCheck();
 		}
+
 		setTool(newTool);
 	}
 
@@ -122,5 +131,10 @@ public class EditorToolsFragment extends Fragment implements OnClickListener, On
 			mEditorRadioGroup.clearCheck();
 		}
 		listener.editorToolChanged(this.tool);
+	}
+	
+	public void clearCheck(){
+		this.tool = EditorTools.NONE;
+		mEditorRadioGroup.clearCheck();		
 	}
 }

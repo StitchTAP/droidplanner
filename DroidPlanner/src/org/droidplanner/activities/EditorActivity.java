@@ -149,6 +149,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 			break;
 		case POLY:
 			break;
+		case RECT:
+			break;
 		case TRASH:
 			break;
 		case NONE:
@@ -172,6 +174,11 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 			Toast.makeText(this,R.string.draw_the_survey_region, Toast.LENGTH_SHORT).show();
 			gestureMapFragment.enableGestureDetection();
 			break;
+		case RECT:
+			Toast.makeText(this,R.string.long_click_to_activate, Toast.LENGTH_SHORT).show();
+			gestureMapFragment.enableGestureDetection();
+			editorToolsFragment.clearCheck();
+			break;
 		case MARKER:
 		case TRASH:
 		case NONE:
@@ -185,6 +192,11 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		switch (tools) {
 		case TRASH: {
 			// Clear the mission?
+			doClearMissionConfirmation();
+			break;
+		}
+		case RECT: {
+			// Call the Rectangle wizard
 			doClearMissionConfirmation();
 			break;
 		}
