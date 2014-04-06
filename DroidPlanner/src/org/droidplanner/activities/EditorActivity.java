@@ -26,6 +26,7 @@ import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.ActionMode.Callback;
 import android.view.Menu;
@@ -129,6 +130,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		case android.R.id.home:
 			planningMapFragment.saveCameraPosition();
 			NavUtils.navigateUpFromSameTask(this);
+			Log.d("CAL", "Home");
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
@@ -169,16 +171,16 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		notifySelectionChanged();
 
 		switch (tools) {
-		case DRAW:
-		case POLY:
-			Toast.makeText(this,R.string.draw_the_survey_region, Toast.LENGTH_SHORT).show();
-			gestureMapFragment.enableGestureDetection();
-			break;
 		case RECT:
 			Toast.makeText(this,R.string.long_click_to_activate, Toast.LENGTH_SHORT).show();
 			gestureMapFragment.enableGestureDetection();
 			editorToolsFragment.clearCheck();
 			break;
+		case DRAW:
+		case POLY:
+//			Toast.makeText(this,R.string.draw_the_survey_region, Toast.LENGTH_SHORT).show();
+//			gestureMapFragment.enableGestureDetection();
+//			break;
 		case MARKER:
 		case TRASH:
 		case NONE:
