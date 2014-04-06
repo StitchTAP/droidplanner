@@ -36,7 +36,7 @@ public class FlightActionsFragment extends Fragment implements	OnClickListener {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View view = inflater.inflate(R.layout.fragment_mission_control,
+		View view = inflater.inflate(R.layout.ag_fragment_mission_control,
 				container, false);
 		setupViews(view);
 		setupListener();
