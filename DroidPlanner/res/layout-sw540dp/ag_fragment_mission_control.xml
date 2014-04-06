@@ -44,7 +44,8 @@
 	    android:layout_height="match_parent"
 	    android:layout_weight="1"
 	    android:drawableTop="@drawable/ic_home"
-	    android:text="@string/ag_mission_abort_and_RTL" />
+	    android:text="@string/ag_mission_abort_and_RTL"
+	    android:textColor="#ffffff" />
 
 	<Button
 	    android:id="@+id/mc_land"
@@ -54,6 +55,8 @@
 	    android:layout_weight="1"
 	    android:drawableTop="@drawable/ic_land"
 	    android:text="@string/ag_mission_control_emergency_land"
+	    android:textColor="#ff4444"
+	    android:textStyle="bold"
 	    tools:ignore="ContentDescription" />
 
 	<Button
