@@ -22,7 +22,11 @@ import org.droidplanner.fragments.mission.MissionDetailFragment;
 import org.droidplanner.fragments.mission.MissionDetailFragment.OnWayPointTypeChangeListener;
 
 import android.app.ActionBar;
+import android.content.Context;
 import android.graphics.Point;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
@@ -36,6 +40,9 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 
 public class EditorActivity extends SuperUI implements OnPathFinishedListener,
@@ -199,7 +206,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		}
 		case RECT: {
 			// Call the Rectangle wizard
-			doClearMissionConfirmation();
+			zoomToMyLocation();
+			//doClearMissionConfirmation();
 			break;
 		}
 
@@ -207,6 +215,31 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 			break;
 		}
 		}
+	}
+
+	private void zoomToMyLocation() {
+		// TODO Auto-generated method stub
+    LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+                    Criteria criteria = new Criteria();
+
+                    Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+                    if (location != null)
+                    {
+                        GoogleMap map = planningMapFragment.mMap;
+                        
+                    	map.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                new LatLng(location.getLatitude(), location.getLongitude()), 13));
+
+                        CameraPosition cameraPosition = new CameraPosition.Builder()
+                        .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
+                        .zoom(17)                   // Sets the zoom
+                        .bearing(0)                // Sets the orientation of the camera to east
+                        .tilt(0)                   // Sets the tilt of the camera to 30 degrees
+                        .build();                   // Creates a CameraPosition from the builder
+                    map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+                    }
+		
 	}
 
 	private void showItemDetail(MissionItem item) {
