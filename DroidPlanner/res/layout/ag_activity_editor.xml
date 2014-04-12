@@ -23,18 +23,18 @@
         />
 
     <fragment
-        android:id="@+id/editorToolsFragment"
+        android:id="@+id/ag_editorToolsFragment"
         android:name="org.droidplanner.fragments.EditorToolsFragment"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_above="@+id/missionFragment1"
-        android:layout_centerVertical="true"
-        android:layout_below="@+id/editorInfoWindow"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
+        android:layout_below="@+id/editorInfoWindow"
+        android:layout_centerVertical="true"
         android:layout_margin="5dp"
         tools:layout="@layout/ag_fragment_editor_tools" />
-
+   
     <fragment
         android:id="@+id/missionFragment1"
         android:name="org.droidplanner.fragments.EditorListFragment"
