@@ -58,18 +58,18 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	private EditorListFragment missionListFragment;
 	private TextView infoView;
 
-    private View mContainerItemDetail;
+	private View mContainerItemDetail;
 
 	private ActionMode contextualActionBar;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_editor);
+		setContentView(R.layout.ag_activity_editor);
 
 		ActionBar actionBar = getActionBar();
-        if(actionBar != null)
-		    actionBar.setDisplayHomeAsUpEnabled(true);
+		if (actionBar != null)
+			actionBar.setDisplayHomeAsUpEnabled(true);
 
 		fragmentManager = getSupportFragmentManager();
 
@@ -78,15 +78,16 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		gestureMapFragment = ((GestureMapFragment) fragmentManager
 				.findFragmentById(R.id.gestureMapFragment));
 		editorToolsFragment = (EditorToolsFragment) fragmentManager
-				.findFragmentById(R.id.editorToolsFragment);
+				.findFragmentById(R.id.ag_editorToolsFragment);
 		missionListFragment = (EditorListFragment) fragmentManager
 				.findFragmentById(R.id.missionFragment1);
 		infoView = (TextView) findViewById(R.id.editorInfoWindow);
 
-        /*
-         * On phone, this view will be null causing the item detail to be shown as a dialog.
-         */
-        mContainerItemDetail = findViewById(R.id.containerItemDetail);
+		/*
+		 * On phone, this view will be null causing the item detail to be shown
+		 * as a dialog.
+		 */
+		mContainerItemDetail = findViewById(R.id.containerItemDetail);
 
 		mission = drone.mission;
 		gestureMapFragment.setOnPathFinishedListener(this);
@@ -100,12 +101,13 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	private void updateMapPadding() {
 		int topPadding = infoView.getBottom();
-		int rightPadding = 0,bottomPadding = 0;
-		if (mission.getItems().size()>0) {
+		int rightPadding = 0, bottomPadding = 0;
+		if (mission.getItems().size() > 0) {
 			rightPadding = editorToolsFragment.getView().getRight();
 			bottomPadding = missionListFragment.getView().getHeight();
 		}
-		planningMapFragment.mMap.setPadding(rightPadding, topPadding, 0, bottomPadding);
+		planningMapFragment.mMap.setPadding(rightPadding, topPadding, 0,
+				bottomPadding);
 	}
 
 	@Override
@@ -145,19 +147,12 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	@Override
 	public void onMapClick(LatLng point) {
-        //If an mission item is selected, unselect it.
-        mission.clearSelection();
-        removeItemDetail();
-        notifySelectionChanged();
+		// If an mission item is selected, unselect it.
+		mission.clearSelection();
+		removeItemDetail();
+		notifySelectionChanged();
 
 		switch (getTool()) {
-		case MARKER:
-			mission.addWaypoint(point);
-			break;
-		case DRAW:
-			break;
-		case POLY:
-			break;
 		case RECT:
 			break;
 		case TRASH:
@@ -179,17 +174,11 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 		switch (tools) {
 		case RECT:
-			Toast.makeText(this,R.string.long_click_to_activate, Toast.LENGTH_SHORT).show();
+			Toast.makeText(this, R.string.long_click_to_activate,
+					Toast.LENGTH_SHORT).show();
 			gestureMapFragment.enableGestureDetection();
 			editorToolsFragment.clearCheck();
 			break;
-		case DRAW:
-		case POLY:
-//			Toast.makeText(this,R.string.draw_the_survey_region, Toast.LENGTH_SHORT).show();
-//			gestureMapFragment.enableGestureDetection();
-//			break;
-		case MARKER:
-		case TRASH:
 		case NONE:
 			gestureMapFragment.disableGestureDetection();
 			break;
@@ -207,7 +196,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		case RECT: {
 			// Call the Rectangle wizard
 			zoomToMyLocation();
-			//doClearMissionConfirmation();
+			// doClearMissionConfirmation();
 			break;
 		}
 
@@ -219,27 +208,31 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	private void zoomToMyLocation() {
 		// TODO Auto-generated method stub
-    LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-                    Criteria criteria = new Criteria();
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		Criteria criteria = new Criteria();
 
-                    Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-                    if (location != null)
-                    {
-                        GoogleMap map = planningMapFragment.mMap;
-                        
-                    	map.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                                new LatLng(location.getLatitude(), location.getLongitude()), 13));
+		Location location = locationManager
+				.getLastKnownLocation(locationManager.getBestProvider(criteria,
+						false));
+		if (location != null) {
+			GoogleMap map = planningMapFragment.mMap;
 
-                        CameraPosition cameraPosition = new CameraPosition.Builder()
-                        .target(new LatLng(location.getLatitude(), location.getLongitude()))      // Sets the center of the map to location user
-                        .zoom(17)                   // Sets the zoom
-                        .bearing(0)                // Sets the orientation of the camera to east
-                        .tilt(0)                   // Sets the tilt of the camera to 30 degrees
-                        .build();                   // Creates a CameraPosition from the builder
-                    map.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(
+					location.getLatitude(), location.getLongitude()), 13));
 
-                    }
-		
+			CameraPosition cameraPosition = new CameraPosition.Builder()
+					.target(new LatLng(location.getLatitude(), location
+							.getLongitude())) // Sets the center of the map to
+												// location user
+					.zoom(17) // Sets the zoom
+					.bearing(0) // Sets the orientation of the camera to east
+					.tilt(0) // Sets the tilt of the camera to 30 degrees
+					.build(); // Creates a CameraPosition from the builder
+			map.animateCamera(CameraUpdateFactory
+					.newCameraPosition(cameraPosition));
+
+		}
+
 	}
 
 	private void showItemDetail(MissionItem item) {
@@ -253,31 +246,32 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	private void addItemDetail(MissionItem item) {
 		itemDetailFragment = item.getDetailFragment();
 
-        if (mContainerItemDetail == null) {
-            itemDetailFragment.show(fragmentManager, "Item detail dialog");
-        } else {
-            fragmentManager.beginTransaction().add(R.id.containerItemDetail,
-                    itemDetailFragment).commit();
-        }
-    }
+		if (mContainerItemDetail == null) {
+			itemDetailFragment.show(fragmentManager, "Item detail dialog");
+		} else {
+			fragmentManager.beginTransaction()
+					.add(R.id.containerItemDetail, itemDetailFragment).commit();
+		}
+	}
 
-    public MissionDetailFragment getItemDetailFragment(){
-        return itemDetailFragment;
-    }
+	public MissionDetailFragment getItemDetailFragment() {
+		return itemDetailFragment;
+	}
 
 	public void switchItemDetail(MissionItem item) {
-        removeItemDetail();
+		removeItemDetail();
 		addItemDetail(item);
 	}
 
 	private void removeItemDetail() {
 		if (itemDetailFragment != null) {
-            if (mContainerItemDetail == null) {
-                itemDetailFragment.dismiss();
-            } else {
-                fragmentManager.beginTransaction().remove(itemDetailFragment).commit();
-            }
-            itemDetailFragment = null;
+			if (mContainerItemDetail == null) {
+				itemDetailFragment.dismiss();
+			} else {
+				fragmentManager.beginTransaction().remove(itemDetailFragment)
+						.commit();
+			}
+			itemDetailFragment = null;
 		}
 	}
 
@@ -285,20 +279,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	public void onPathFinished(List<Point> path) {
 		List<LatLng> points = MapProjection.projectPathIntoMap(path,
 				planningMapFragment.mMap);
-		switch (getTool()) {
-		case DRAW:
-			drone.mission.addWaypoints(points);
-			break;
-		case POLY:
-			if (path.size()>2) {
-				drone.mission.addSurveyPolygon(points);				
-			}else{
-				editorToolsFragment.setTool(EditorTools.POLY);
-				return;
-			}
-			break;
-		default:
-			break;
+		if (path.size() > 2) {
+			drone.mission.addSurveyPolygon(points);
 		}
 		editorToolsFragment.setTool(EditorTools.NONE);
 	}
@@ -314,7 +296,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		switch(item.getItemId()){
+		switch (item.getItemId()) {
 		case MENU_DELETE:
 			mission.removeWaypoints(mission.getSelected());
 			notifySelectionChanged();
@@ -375,7 +357,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	@Override
 	public void onItemClick(MissionItem item) {
-	    
+
 		switch (editorToolsFragment.getTool()) {
 		default:
 			if (contextualActionBar != null) {
@@ -407,8 +389,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	}
 
 	private void notifySelectionChanged() {
-        List<MissionItem> selectedItems = mission.getSelected();
-        missionListFragment.updateMissionItemSelection(selectedItems);
+		List<MissionItem> selectedItems = mission.getSelected();
+		missionListFragment.updateMissionItemSelection(selectedItems);
 
 		if (selectedItems.size() == 0) {
 			missionListFragment.setArrowsVisibility(false);
