@@ -1,44 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RadioGroup
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/editor_tools_layout"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:gravity="center">
+    android:layout_height="match_parent"
+    android:orientation="vertical" >
 
-    <org.droidplanner.widgets.button.RadioButtonCenter
-        android:id="@+id/editor_tools_marker"
-        style="@style/editorButton"
+    <Button
+        android:id="@+id/ag_editor_rectangle"
+        style="@style/flightControlButton"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/flightControlPadding"
         android:background="@drawable/button_editor"
-        android:button="@drawable/ic_editor_wp"
-        android:visibility="gone" />
+        android:drawableTop="@drawable/ic_editor_rectangle"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@string/ag_editor_rectangle"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#ffffff"
+        android:textSize="@dimen/flightControlTextSize" />
 
-    <org.droidplanner.widgets.button.RadioButtonCenter
-        android:id="@+id/editor_tools_draw"
-        style="@style/editorButton"
+    <Button
+        android:id="@+id/ag_editor_trash"
+        style="@style/flightControlButton"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/flightControlPadding"
         android:background="@drawable/button_editor"
-        android:button="@drawable/ic_editor_draw"
-        android:visibility="gone" />
+        android:drawableTop="@drawable/ic_editor_trash"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@string/ag_editor_trash"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#ffffff"
+        android:textSize="@dimen/flightControlTextSize" />
 
-    <org.droidplanner.widgets.button.RadioButtonCenter
-        android:id="@+id/editor_tools_poly"
-        style="@style/editorButton"
-        android:background="@drawable/button_editor"
-        android:button="@drawable/ic_editor_poly"
-        android:visibility="gone" />
-
-    <org.droidplanner.widgets.button.RadioButtonCenter
-        android:id="@+id/editor_tools_rect"
-        style="@style/editorButton"
-        android:background="@drawable/button_editor"
-        android:button="@drawable/ic_editor_rectangle" />
-
-    <org.droidplanner.widgets.button.RadioButtonCenter
-        android:id="@+id/editor_tools_trash"
-        style="@style/editorButton"
-        android:button="@drawable/ic_editor_trash"
-        android:background="@drawable/button_editor_trash"
-        />
-
-</RadioGroup>
-
+</LinearLayout>
