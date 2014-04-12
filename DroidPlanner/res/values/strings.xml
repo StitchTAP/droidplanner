@@ -362,5 +362,7 @@
     <string name="ag_mission_control_emergency_land">Emergency Land</string>
     <string name="ag_mission_control_set_flight_path">Set Flight Path</string>
     <string name="ag_mission_control_commence_flight">Commence Flight</string>
+    <string name="ag_editor_rectangle">Create Rectangle</string>
+    <string name="ag_editor_trash">Delete Rectangle</string>
 
 </resources>
