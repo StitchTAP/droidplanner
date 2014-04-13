@@ -10,19 +10,20 @@ import org.droidplanner.drone.Drone;
 import org.droidplanner.drone.DroneInterfaces.DroneEventsType;
 import org.droidplanner.drone.variables.mission.Mission;
 import org.droidplanner.drone.variables.mission.MissionItem;
-import org.droidplanner.fragments.EditorListFragment;
 import org.droidplanner.fragments.EditorMapFragment;
-import org.droidplanner.fragments.EditorToolsFragment;
-import org.droidplanner.fragments.EditorToolsFragment.EditorTools;
-import org.droidplanner.fragments.EditorToolsFragment.OnEditorToolSelected;
+import org.droidplanner.fragments.RectangleEditorFragment;
+import org.droidplanner.fragments.RectangleEditorFragment.OnRectangleEditorEvent;
+import org.droidplanner.fragments.RectangleEditorFragment.RectangleEditorAction;
 import org.droidplanner.fragments.helpers.GestureMapFragment;
 import org.droidplanner.fragments.helpers.GestureMapFragment.OnPathFinishedListener;
 import org.droidplanner.fragments.helpers.MapProjection;
 import org.droidplanner.fragments.mission.MissionDetailFragment;
 import org.droidplanner.fragments.mission.MissionDetailFragment.OnWayPointTypeChangeListener;
+import org.droidplanner.helpers.geoTools.GeoTools;
 
 import android.app.ActionBar;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Point;
 import android.location.Criteria;
 import android.location.Location;
@@ -31,36 +32,35 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.NavUtils;
 import android.util.Log;
-import android.view.ActionMode;
-import android.view.ActionMode.Callback;
-import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ListView;
+import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polygon;
+import com.google.android.gms.maps.model.PolygonOptions;
 
 public class EditorActivity extends SuperUI implements OnPathFinishedListener,
-		OnEditorToolSelected, OnWayPointTypeChangeListener,
-		OnEditorInteraction, Callback {
+		OnRectangleEditorEvent, OnEditorInteraction,
+		OnWayPointTypeChangeListener{
 
 	private EditorMapFragment planningMapFragment;
 	private GestureMapFragment gestureMapFragment;
 	private Mission mission;
-	private EditorToolsFragment editorToolsFragment;
+	private RectangleEditorFragment rectangleEditorFragment;
 	private MissionDetailFragment itemDetailFragment;
 	private FragmentManager fragmentManager;
-	private EditorListFragment missionListFragment;
 	private TextView infoView;
 
 	private View mContainerItemDetail;
-
-	private ActionMode contextualActionBar;
+	private Polygon rectPolygon;
+	private double mBearing;
+	private double mForward, mLateral;
+	private LatLng mOrigin;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -77,10 +77,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 				.findFragmentById(R.id.mapFragment));
 		gestureMapFragment = ((GestureMapFragment) fragmentManager
 				.findFragmentById(R.id.gestureMapFragment));
-		editorToolsFragment = (EditorToolsFragment) fragmentManager
-				.findFragmentById(R.id.ag_editorToolsFragment);
-		missionListFragment = (EditorListFragment) fragmentManager
-				.findFragmentById(R.id.missionFragment1);
+		rectangleEditorFragment = (RectangleEditorFragment) fragmentManager
+				.findFragmentById(R.id.rectangleEditorFragment);
 		infoView = (TextView) findViewById(R.id.editorInfoWindow);
 
 		/*
@@ -91,6 +89,18 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 		mission = drone.mission;
 		gestureMapFragment.setOnPathFinishedListener(this);
+		gestureMapFragment.disableGestureDetection();
+
+		mBearing = 0;
+	}
+
+	@Override
+	protected void onResume() {
+		// TODO Auto-generated method stub
+		super.onResume();
+		getWindow().setSoftInputMode(
+				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
+						| WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 	}
 
 	@Override
@@ -103,8 +113,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		int topPadding = infoView.getBottom();
 		int rightPadding = 0, bottomPadding = 0;
 		if (mission.getItems().size() > 0) {
-			rightPadding = editorToolsFragment.getView().getRight();
-			bottomPadding = missionListFragment.getView().getHeight();
+			bottomPadding = rectangleEditorFragment.getView().getHeight();
 		}
 		planningMapFragment.mMap.setPadding(rightPadding, topPadding, 0,
 				bottomPadding);
@@ -147,92 +156,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	@Override
 	public void onMapClick(LatLng point) {
-		// If an mission item is selected, unselect it.
-		mission.clearSelection();
 		removeItemDetail();
 		notifySelectionChanged();
-
-		switch (getTool()) {
-		case RECT:
-			break;
-		case TRASH:
-			break;
-		case NONE:
-			break;
-		}
-	}
-
-	public EditorTools getTool() {
-		return editorToolsFragment.getTool();
-	}
-
-	@Override
-	public void editorToolChanged(EditorTools tools) {
-		removeItemDetail();
-		mission.clearSelection();
-		notifySelectionChanged();
-
-		switch (tools) {
-		case RECT:
-			Toast.makeText(this, R.string.long_click_to_activate,
-					Toast.LENGTH_SHORT).show();
-			gestureMapFragment.enableGestureDetection();
-			editorToolsFragment.clearCheck();
-			break;
-		case NONE:
-			gestureMapFragment.disableGestureDetection();
-			break;
-		}
-	}
-
-	@Override
-	public void editorToolLongClicked(EditorTools tools) {
-		switch (tools) {
-		case TRASH: {
-			// Clear the mission?
-			doClearMissionConfirmation();
-			break;
-		}
-		case RECT: {
-			// Call the Rectangle wizard
-			zoomToMyLocation();
-			// doClearMissionConfirmation();
-			break;
-		}
-
-		default: {
-			break;
-		}
-		}
-	}
-
-	private void zoomToMyLocation() {
-		// TODO Auto-generated method stub
-		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-		Criteria criteria = new Criteria();
-
-		Location location = locationManager
-				.getLastKnownLocation(locationManager.getBestProvider(criteria,
-						false));
-		if (location != null) {
-			GoogleMap map = planningMapFragment.mMap;
-
-			map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(
-					location.getLatitude(), location.getLongitude()), 13));
-
-			CameraPosition cameraPosition = new CameraPosition.Builder()
-					.target(new LatLng(location.getLatitude(), location
-							.getLongitude())) // Sets the center of the map to
-												// location user
-					.zoom(17) // Sets the zoom
-					.bearing(0) // Sets the orientation of the camera to east
-					.tilt(0) // Sets the tilt of the camera to 30 degrees
-					.build(); // Creates a CameraPosition from the builder
-			map.animateCamera(CameraUpdateFactory
-					.newCameraPosition(cameraPosition));
-
-		}
-
 	}
 
 	private void showItemDetail(MissionItem item) {
@@ -275,6 +200,37 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		}
 	}
 
+	private Location getLocation() {
+		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+		Criteria criteria = new Criteria();
+
+		Location location = locationManager
+				.getLastKnownLocation(locationManager.getBestProvider(criteria,
+						false));
+
+		return location;
+	}
+
+	private void zoomToMyLocation(Location location) {
+		if (location != null) {
+			GoogleMap map = planningMapFragment.mMap;
+
+			map.animateCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(
+					location.getLatitude(), location.getLongitude()), 13));
+
+			CameraPosition cameraPosition = new CameraPosition.Builder()
+					.target(new LatLng(location.getLatitude(), location
+							.getLongitude())) // Sets the center of the map to
+												// location user
+					.zoom(map.getCameraPosition().zoom) // Sets the zoom
+					.bearing(0) // Sets the orientation of the camera to east
+					.tilt(0) // Sets the tilt of the camera to 30 degrees
+					.build(); // Creates a CameraPosition from the builder
+			map.animateCamera(CameraUpdateFactory
+					.newCameraPosition(cameraPosition));
+		}
+	}
+
 	@Override
 	public void onPathFinished(List<Point> path) {
 		List<LatLng> points = MapProjection.projectPathIntoMap(path,
@@ -282,7 +238,6 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		if (path.size() > 2) {
 			drone.mission.addSurveyPolygon(points);
 		}
-		editorToolsFragment.setTool(EditorTools.NONE);
 	}
 
 	@Override
@@ -291,112 +246,16 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		showItemDetail(newItem);
 	}
 
-	private static final int MENU_DELETE = 1;
-	private static final int MENU_REVERSE = 2;
-
-	@Override
-	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
-		switch (item.getItemId()) {
-		case MENU_DELETE:
-			mission.removeWaypoints(mission.getSelected());
-			notifySelectionChanged();
-			mode.finish();
-			return true;
-		case MENU_REVERSE:
-			mission.reverse();
-			notifySelectionChanged();
-			return true;
-		default:
-			return false;
-		}
-	}
-
-	@Override
-	public boolean onCreateActionMode(ActionMode arg0, Menu menu) {
-		menu.add(0, MENU_DELETE, 0, "Delete");
-		menu.add(0, MENU_REVERSE, 0, "Reverse");
-		editorToolsFragment.getView().setVisibility(View.INVISIBLE);
-		return true;
-	}
-
-	@Override
-	public void onDestroyActionMode(ActionMode arg0) {
-		missionListFragment.updateChoiceMode(ListView.CHOICE_MODE_SINGLE);
-		mission.clearSelection();
-		notifySelectionChanged();
-		contextualActionBar = null;
-		editorToolsFragment.getView().setVisibility(View.VISIBLE);
-	}
-
-	@Override
-	public boolean onPrepareActionMode(ActionMode arg0, Menu arg1) {
-		return false;
-	}
-
 	@Override
 	public boolean onItemLongClick(MissionItem item) {
-		if (contextualActionBar != null) {
-			if (mission.selectionContains(item)) {
-				mission.clearSelection();
-			} else {
-				mission.clearSelection();
-				mission.addToSelection(mission.getItems());
-			}
-			notifySelectionChanged();
-		} else {
-			removeItemDetail();
-			editorToolsFragment.setTool(EditorTools.NONE);
-			missionListFragment.updateChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
-			contextualActionBar = startActionMode(this);
-			mission.clearSelection();
-			mission.addToSelection(item);
-			notifySelectionChanged();
-		}
 		return true;
 	}
 
 	@Override
 	public void onItemClick(MissionItem item) {
-
-		switch (editorToolsFragment.getTool()) {
-		default:
-			if (contextualActionBar != null) {
-				if (mission.selectionContains(item)) {
-					mission.removeItemFromSelection(item);
-				} else {
-					mission.addToSelection(item);
-				}
-			} else {
-				if (mission.selectionContains(item)) {
-					mission.clearSelection();
-					removeItemDetail();
-				} else {
-					editorToolsFragment.setTool(EditorTools.NONE);
-					mission.setSelectionTo(item);
-					showItemDetail(item);
-				}
-			}
-			break;
-		case TRASH:
-			mission.removeWaypoint(item);
-			mission.clearSelection();
-			if (mission.getItems().size() <= 0) {
-				editorToolsFragment.setTool(EditorTools.NONE);
-			}
-			break;
-		}
-		notifySelectionChanged();
 	}
 
 	private void notifySelectionChanged() {
-		List<MissionItem> selectedItems = mission.getSelected();
-		missionListFragment.updateMissionItemSelection(selectedItems);
-
-		if (selectedItems.size() == 0) {
-			missionListFragment.setArrowsVisibility(false);
-		} else {
-			missionListFragment.setArrowsVisibility(true);
-		}
 		planningMapFragment.update();
 	}
 
@@ -421,5 +280,58 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 				});
 
 		ynd.show(getSupportFragmentManager(), "clearMission");
+	}
+
+	@Override
+	public void OnRectValueChanged(double vForward, double vLateral) {
+		mForward = vForward;
+		mLateral = vLateral;
+		Location loc = getLocation();
+		mOrigin = new LatLng(loc.getLatitude(), loc.getLongitude());
+		drawRectangle(mOrigin, mBearing, mForward, mLateral);
+
+	}
+
+	private void drawRectangle(LatLng vOrigin, double vBearing,
+			double vForward, double vLateral) {
+		GoogleMap map = planningMapFragment.mMap;
+		Log.d("RECT", String.format(
+				"Lat/Lng: %f/%f\n Bearing: %f\n Fwd/Lat: %f %f",
+				vOrigin.latitude, vOrigin.longitude, vBearing, vForward,
+				vLateral));
+
+		LatLng l0 = GeoTools.newCoordFromBearingAndDistance(vOrigin,
+				vBearing - 90, vLateral / 2);
+		LatLng l1 = GeoTools.newCoordFromBearingAndDistance(l0, vBearing + 90,
+				vLateral);
+		LatLng l2 = GeoTools.newCoordFromBearingAndDistance(l1, vBearing,
+				vForward);
+		LatLng l3 = GeoTools.newCoordFromBearingAndDistance(l0, vBearing,
+				vForward);
+
+		if (rectPolygon != null)
+			rectPolygon.remove();
+
+		rectPolygon = map.addPolygon(new PolygonOptions().add(l0, l1, l2, l3)
+				.strokeColor(Color.RED).strokeWidth((float) 2.0)
+				.fillColor(0x330000ff));
+	}
+
+	@Override
+	public void OnRectAction(RectangleEditorAction vAction, boolean isLongClick) {
+
+		switch (vAction) {
+		case CREATE:
+			if (isLongClick) {
+			}
+			break;
+		case DELETE:
+			if (isLongClick)
+				doClearMissionConfirmation();
+			break;
+		default:
+			break;
+		}
+
 	}
 }
