@@ -38,6 +38,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -48,7 +49,7 @@ import com.google.android.gms.maps.model.PolygonOptions;
 
 public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		OnRectangleEditorEvent, OnEditorInteraction,
-		OnWayPointTypeChangeListener{
+		OnWayPointTypeChangeListener {
 
 	private EditorMapFragment planningMapFragment;
 	private GestureMapFragment gestureMapFragment;
@@ -61,7 +62,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	private View mContainerItemDetail;
 	private Polygon rectPolygon;
 	private double mBearing;
-	private double mForward=20.0, mLateral=20.0;
+	private double mForward = 20.0, mLateral = 20.0;
 	private LatLng mOrigin;
 	private SurveyData surveyData = new SurveyData();
 
@@ -133,13 +134,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	public void onDroneEvent(DroneEventsType event, Drone drone) {
 		super.onDroneEvent(event, drone);
 		switch (event) {
-		case MISSION_UPDATE:
-			// Remove detail window if item is removed
-			if (itemDetailFragment != null) {
-				if (!drone.mission.hasItem(itemDetailFragment.getItem())) {
-					removeItemDetail();
-				}
-			}
+		case GPS:
+			OnRectValueChanged(mForward, mLateral);
 			break;
 		default:
 			break;
@@ -164,6 +160,97 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		notifySelectionChanged();
 	}
 
+	@Override
+	public void onPathFinished(List<Point> path) {
+		List<LatLng> points = MapProjection.projectPathIntoMap(path,
+				planningMapFragment.mMap);
+		if (path.size() > 2) {
+			drone.mission.addSurveyPolygon(points);
+		}
+	}
+
+	@Override
+	public void onWaypointTypeChanged(MissionItem newItem, MissionItem oldItem) {
+		mission.replace(oldItem, newItem);
+		showItemDetail(newItem);
+	}
+
+	@Override
+	public boolean onItemLongClick(MissionItem item) {
+		return true;
+	}
+
+	@Override
+	public void onItemClick(MissionItem item) {
+	}
+
+	private void notifySelectionChanged() {
+		planningMapFragment.update();
+	}
+
+	@Override
+	public void onListVisibilityChanged() {
+		updateMapPadding();
+	}
+
+	@Override
+	public void OnRectValueChanged(double vForward, double vLateral) {
+		mForward = vForward;
+		mLateral = vLateral;
+		if (drone.GPS.getSatCount() <= 0) {
+			Location loc = getLocation();
+			mOrigin = new LatLng(loc.getLatitude(), loc.getLongitude());
+		} else {
+			mOrigin = drone.GPS.getPosition();
+		}
+
+		mBearing = drone.navigation.getNavBearing();
+
+		drawRectangle(mOrigin, mBearing, mForward, mLateral);
+
+	}
+
+	@Override
+	public void OnRectAction(RectangleEditorAction vAction, boolean isLongClick) {
+
+		switch (vAction) {
+		case CREATE:
+			if (isLongClick) {
+				if (rectPolygon != null) {
+					if (missionHasItem(0) != null)
+						doUploadSurveyConfirmation();
+					else
+						updateSurveyPolygon(rectPolygon, false);
+				}
+			} else {
+				MissionItem mItem = missionHasItem(0);
+				if (mItem != null) {
+					if (getItemDetailFragment() == null)
+						showItemDetail(mItem);
+					else
+						removeItemDetail();
+				} else {
+					Toast.makeText(this, R.string.ag_editor_rect_info,
+							Toast.LENGTH_SHORT).show();
+				}
+			}
+			break;
+		case DELETE:
+			if (isLongClick)
+				doClearMissionConfirmation();
+			else {
+				Toast.makeText(this, R.string.ag_editor_trash_info,
+						Toast.LENGTH_SHORT).show();
+			}
+			break;
+		default:
+			break;
+		}
+
+	}
+
+	// Local Methods : Mission
+	// Detail--------------------------------------------------------------------
 	private void showItemDetail(MissionItem item) {
 		if (itemDetailFragment == null) {
 			addItemDetail(item);
@@ -204,6 +291,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		}
 	}
 
+	// Local Methods : Location
+	// related--------------------------------------------------------------------
 	private Location getLocation() {
 		LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		Criteria criteria = new Criteria();
@@ -235,67 +324,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		}
 	}
 
-	@Override
-	public void onPathFinished(List<Point> path) {
-		List<LatLng> points = MapProjection.projectPathIntoMap(path,
-				planningMapFragment.mMap);
-		if (path.size() > 2) {
-			drone.mission.addSurveyPolygon(points);
-		}
-	}
-
-	@Override
-	public void onWaypointTypeChanged(MissionItem newItem, MissionItem oldItem) {
-		mission.replace(oldItem, newItem);
-		showItemDetail(newItem);
-	}
-
-	@Override
-	public boolean onItemLongClick(MissionItem item) {
-		return true;
-	}
-
-	@Override
-	public void onItemClick(MissionItem item) {
-	}
-
-	private void notifySelectionChanged() {
-		planningMapFragment.update();
-	}
-
-	@Override
-	public void onListVisibilityChanged() {
-		updateMapPadding();
-	}
-
-	private void doClearMissionConfirmation() {
-		YesNoDialog ynd = YesNoDialog.newInstance(
-				getString(R.string.dlg_clear_mission_title),
-				getString(R.string.dlg_clear_mission_confirm),
-				new YesNoDialog.Listener() {
-					@Override
-					public void onYes() {
-						mission.clear();
-					}
-
-					@Override
-					public void onNo() {
-					}
-				});
-
-		ynd.show(getSupportFragmentManager(), "clearMission");
-	}
-
-	@Override
-	public void OnRectValueChanged(double vForward, double vLateral) {
-		mForward = vForward;
-		mLateral = vLateral;
-		Location loc = getLocation();
-		mOrigin = new LatLng(loc.getLatitude(), loc.getLongitude());
-		drawRectangle(mOrigin, mBearing, mForward, mLateral);
-
-	}
-
+	// Local Methods : Rectangle
+	// Drawing--------------------------------------------------------------------
 	private void drawRectangle(LatLng vOrigin, double vBearing,
 			double vForward, double vLateral) {
 		GoogleMap map = planningMapFragment.mMap;
@@ -319,63 +349,74 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		rectPolygon = map.addPolygon(new PolygonOptions().add(l0, l1, l2, l3)
 				.strokeColor(Color.RED).strokeWidth((float) 2.0)
 				.fillColor(0x330000ff));
-		
-		if(missionHasItem(0)!=null){
-			updateSurveyPolygon(rectPolygon,true);
+
+		if (missionHasItem(0) != null) {
+			updateSurveyPolygon(rectPolygon, true);
 		}
 	}
 
-	private void updateSurveyPolygon(Polygon vRectPolygon, boolean updateSurveyData) {
-		Survey survey = (Survey)missionHasItem(0);
-		
-		if(survey!=null){
+	// Local Methods : Survey Mission items
+	// helpers--------------------------------------------------------------------
+	private void updateSurveyPolygon(Polygon vRectPolygon,
+			boolean updateSurveyData) {
+		Survey survey = (Survey) missionHasItem(0);
+
+		if (survey != null) {
 			surveyData = survey.surveyData;
 			mission.clear();
 		}
-		
+
 		mission.addSurveyPolygon(vRectPolygon.getPoints());
-		if(survey!=null && updateSurveyData){
-			survey = (Survey)missionHasItem(0);
+		if (survey != null && updateSurveyData) {
+			survey = (Survey) missionHasItem(0);
 			survey.surveyData = surveyData;
 			mission.notifiyMissionUpdate();
 		}
 	}
 
 	private MissionItem missionHasItem(int aIndex) {
-		List <MissionItem> mItems = mission.getItems();
-		if(mItems.size()<=0 && mItems.size()>=aIndex)
+		List<MissionItem> mItems = mission.getItems();
+		if (mItems.size() <= 0 && mItems.size() >= aIndex)
 			return null;
 		return mItems.get(aIndex);
 	}
 
-	@Override
-	public void OnRectAction(RectangleEditorAction vAction, boolean isLongClick) {
+	// Local Methods : Confirmation
+	// dialogs--------------------------------------------------------------------
+	private void doClearMissionConfirmation() {
+		YesNoDialog ynd = YesNoDialog.newInstance(
+				getString(R.string.dlg_clear_mission_title),
+				getString(R.string.dlg_clear_mission_confirm),
+				new YesNoDialog.Listener() {
+					@Override
+					public void onYes() {
+						mission.clear();
+					}
 
-		switch (vAction) {
-		case CREATE:
-			if (isLongClick) {
-				if(rectPolygon!=null){
-					updateSurveyPolygon(rectPolygon,false);
-				}
-			} else {
-				MissionItem mItem = missionHasItem(0);
-				if(mItem!=null){	
-					if(getItemDetailFragment()==null)
-						showItemDetail(mItem);
-					else
-						removeItemDetail();
-				} else {
-					
-				}
-			}
-			break;
-		case DELETE:
-			if (isLongClick)
-				doClearMissionConfirmation();
-			break;
-		default:
-			break;
-		}
+					@Override
+					public void onNo() {
+					}
+				});
 
+		ynd.show(getSupportFragmentManager(), "clearMission");
 	}
+
+	private void doUploadSurveyConfirmation() {
+		YesNoDialog ynd = YesNoDialog.newInstance(
+				getString(R.string.ag_editor_rect_dlg_upload_title),
+				getString(R.string.ag_editor_rect_dlg_upload),
+				new YesNoDialog.Listener() {
+					@Override
+					public void onYes() {
+						drone.mission.sendMissionToAPM();
+					}
+
+					@Override
+					public void onNo() {
+					}
+				});
+
+		ynd.show(getSupportFragmentManager(), "createSurvey");
+	}
+
 }
