@@ -19,6 +19,7 @@ import org.droidplanner.fragments.RectangleEditorFragment.RectangleEditorAction;
 import org.droidplanner.fragments.helpers.GestureMapFragment;
 import org.droidplanner.fragments.helpers.GestureMapFragment.OnPathFinishedListener;
 import org.droidplanner.fragments.helpers.MapProjection;
+import org.droidplanner.fragments.markers.DroneMarker;
 import org.droidplanner.fragments.mission.MissionDetailFragment;
 import org.droidplanner.fragments.mission.MissionDetailFragment.OnWayPointTypeChangeListener;
 import org.droidplanner.helpers.geoTools.GeoTools;
@@ -65,6 +66,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	private double mForward = 20.0, mLateral = 20.0;
 	private LatLng mOrigin;
 	private SurveyData surveyData = new SurveyData();
+	private DroneMarker droneMarker;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -96,6 +98,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		gestureMapFragment.disableGestureDetection();
 
 		mBearing = 0;
+		droneMarker = new DroneMarker(drone,planningMapFragment.mMap);
 	}
 
 	@Override
