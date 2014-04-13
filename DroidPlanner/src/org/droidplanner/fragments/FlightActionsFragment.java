@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.MAVLink.Messages.ApmModes;
 
@@ -88,7 +89,9 @@ public class FlightActionsFragment extends Fragment implements	OnClickListener {
 			drone.state.changeFlightMode(ApmModes.ROTOR_LAND);
 			break;
 		case R.id.mc_takeoff:
-			drone.state.changeFlightMode(ApmModes.ROTOR_TAKEOFF);
+			//drone.state.changeFlightMode(ApmModes.ROTOR_TAKEOFF);
+			Toast.makeText(this.getActivity(), R.string.ag_flight_commence_info,
+					Toast.LENGTH_LONG).show();
 			break;
 		case R.id.mc_homeBtn:
 			drone.state.changeFlightMode(ApmModes.ROTOR_RTL);
