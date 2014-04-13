@@ -162,7 +162,7 @@ public class RectangleEditorFragment extends Fragment implements OnClickListener
 		
 		if(listener!=null){
 			if(action!=RectangleEditorAction.NONE)
-				listener.OnRectAction(action, true);
+				listener.OnRectAction(action, false);
 			else{
 				edtFwd.setText(String.valueOf(fwdValue));
 				edtLat.setText(String.valueOf(latValue));
