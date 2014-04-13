@@ -364,5 +364,9 @@
     <string name="ag_mission_control_commence_flight">Commence Flight</string>
     <string name="ag_editor_rectangle">Create Rectangle</string>
     <string name="ag_editor_trash">Delete Rectangle</string>
+    <string name="ag_editor_forward_travel">Forward Travel</string>
+    <string name="ag_editor_lateral_travel">Lateral Travel</string>
+    <string name="ag_editor_rect_unit">m</string>
+    <string name="ag_editor_rect_defvalue">20.0</string>
 
 </resources>
