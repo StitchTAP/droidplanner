@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+    <Button
+        android:id="@+id/ag_editor_trash"
+        style="@style/flightControlButton"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/flightControlPadding"
+        android:background="@drawable/button_editor"
+        android:drawableTop="@drawable/ic_editor_trash"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@string/ag_editor_trash"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#ffffff"
+        android:textSize="@dimen/flightControlTextSize" />
+
+    <Button
+        android:id="@+id/ag_editor_rectangle"
+        style="@style/flightControlButton"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/flightControlPadding"
+        android:background="@drawable/button_editor"
+        android:drawableTop="@drawable/ic_editor_rectangle"
+        android:gravity="center_vertical|center_horizontal"
+        android:text="@string/ag_editor_rectangle"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#ffffff"
+        android:textSize="@dimen/flightControlTextSize" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_margin="@dimen/flightControlMargin" >
+
+        <RelativeLayout
+            android:layout_width="140dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="0.63"
+            android:background="@drawable/button_editor"
+            android:padding="@dimen/flightControlMargin" >
+
+            <TextView
+                android:id="@+id/TextView02"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:gravity="center_horizontal"
+                android:text="@string/ag_editor_forward_travel"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#ffffff" />
+
+            <EditText
+                android:id="@+id/ag_fwd_textedit"
+                android:layout_width="115dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/TextView02"
+                android:layout_centerVertical="true"
+                android:gravity="right"
+                android:imeOptions="actionDone"
+                android:inputType="numberDecimal"
+                android:text="@string/ag_editor_rect_defvalue"
+                android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                android:textColor="#ffffff" />
+
+            <requestFocus />
+
+            <ImageButton
+                android:id="@+id/ag_fwd_btn_plus"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/ag_fwd_textedit"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@+id/ag_fwd_textedit"
+                android:src="@drawable/ic_plus" />
+
+            <ImageButton
+                android:id="@+id/ag_fwd_btn_minus"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/ag_fwd_btn_plus"
+                android:layout_below="@+id/ag_fwd_textedit"
+                android:layout_toRightOf="@+id/ag_fwd_btn_plus"
+                android:src="@drawable/ic_minus" />
+
+            <TextView
+                android:id="@+id/TextView03"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/ag_fwd_textedit"
+                android:layout_alignBottom="@+id/ag_fwd_textedit"
+                android:layout_toRightOf="@+id/ag_fwd_textedit"
+                android:text="@string/ag_editor_rect_unit"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#ffffff" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="140dp"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:background="@drawable/button_editor"
+            android:padding="@dimen/flightControlMargin" >
+
+            <TextView
+                android:id="@+id/ag_rect_lat_text"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:gravity="center_horizontal"
+                android:text="@string/ag_editor_lateral_travel"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#ffffff" />
+
+            <EditText
+                android:id="@+id/ag_lat_textedit"
+                android:layout_width="115dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/ag_rect_lat_text"
+                android:layout_centerVertical="true"
+                android:gravity="right"
+                android:imeOptions="actionDone"
+                android:inputType="numberDecimal"
+                android:text="@string/ag_editor_rect_defvalue"
+                android:textAppearance="?android:attr/textAppearanceSmallInverse"
+                android:textColor="#ffffff" />
+
+            <ImageButton
+                android:id="@+id/ag_lat_btn_plus"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/ag_lat_textedit"
+                android:layout_alignParentBottom="true"
+                android:layout_below="@+id/ag_lat_textedit"
+                android:src="@drawable/ic_plus" />
+
+            <ImageButton
+                android:id="@+id/ag_lat_btn_minus"
+                android:layout_width="65dp"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/ag_lat_btn_plus"
+                android:layout_below="@+id/ag_lat_textedit"
+                android:layout_toRightOf="@+id/ag_lat_btn_plus"
+                android:src="@drawable/ic_minus" />
+
+            <TextView
+                android:id="@+id/textView1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignBaseline="@+id/ag_lat_textedit"
+                android:layout_alignBottom="@+id/ag_lat_textedit"
+                android:layout_toRightOf="@+id/ag_lat_textedit"
+                android:text="@string/ag_editor_rect_unit"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:textColor="#ffffff" />
+        </RelativeLayout>
+    </LinearLayout>
+
+</LinearLayout>
