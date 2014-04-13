@@ -359,7 +359,7 @@
     <string name="mode1_throttle_on_right_stick">Mode 1: Throttle on RIGHT stick</string>
     <string name="mode2_throttle_on_left_stick">Mode 2: Throttle on LEFT stick</string>
  
-    <!-- AG DroidPlanner - Bill Robinson -->
+    <!-- AG DroidPlanner - Bill Robertson -->
      <string name="ag_mission_abort_and_RTL">Abort Mission &amp; Return To Home</string>
     <string name="ag_mission_control_emergency_land">Emergency Land</string>
     <string name="ag_mission_control_set_flight_path">Set Flight Path</string>
@@ -376,6 +376,7 @@
     <string name="ag_editor_rect_dlg_create">Press OK to create the Survey points. \nExisting Survey will be over written</string>
     <string name="ag_editor_rect_dlg_upload_title">Upload Survey Data</string>
     <string name="ag_editor_rect_dlg_upload">Survey points will be uploaded to vehicle.\nPress OK to start uploading data</string>
+    <string name="ag_flight_commence_info">This feature will be available in the next release.\nTo commence flight, manually set APM mode to \'Auto\'</string>
     
     
 </resources>
