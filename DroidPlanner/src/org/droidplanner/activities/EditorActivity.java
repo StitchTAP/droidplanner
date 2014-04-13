@@ -10,6 +10,8 @@ import org.droidplanner.drone.Drone;
 import org.droidplanner.drone.DroneInterfaces.DroneEventsType;
 import org.droidplanner.drone.variables.mission.Mission;
 import org.droidplanner.drone.variables.mission.MissionItem;
+import org.droidplanner.drone.variables.mission.survey.Survey;
+import org.droidplanner.drone.variables.mission.survey.SurveyData;
 import org.droidplanner.fragments.EditorMapFragment;
 import org.droidplanner.fragments.RectangleEditorFragment;
 import org.droidplanner.fragments.RectangleEditorFragment.OnRectangleEditorEvent;
@@ -59,8 +61,9 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	private View mContainerItemDetail;
 	private Polygon rectPolygon;
 	private double mBearing;
-	private double mForward, mLateral;
+	private double mForward=20.0, mLateral=20.0;
 	private LatLng mOrigin;
+	private SurveyData surveyData = new SurveyData();
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -101,6 +104,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
 						| WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+		OnRectValueChanged(mForward, mLateral);
 	}
 
 	@Override
@@ -315,6 +319,33 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		rectPolygon = map.addPolygon(new PolygonOptions().add(l0, l1, l2, l3)
 				.strokeColor(Color.RED).strokeWidth((float) 2.0)
 				.fillColor(0x330000ff));
+		
+		if(missionHasItem(0)!=null){
+			updateSurveyPolygon(rectPolygon,true);
+		}
+	}
+
+	private void updateSurveyPolygon(Polygon vRectPolygon, boolean updateSurveyData) {
+		Survey survey = (Survey)missionHasItem(0);
+		
+		if(survey!=null){
+			surveyData = survey.surveyData;
+			mission.clear();
+		}
+		
+		mission.addSurveyPolygon(vRectPolygon.getPoints());
+		if(survey!=null && updateSurveyData){
+			survey = (Survey)missionHasItem(0);
+			survey.surveyData = surveyData;
+			mission.notifiyMissionUpdate();
+		}
+	}
+
+	private MissionItem missionHasItem(int aIndex) {
+		List <MissionItem> mItems = mission.getItems();
+		if(mItems.size()<=0 && mItems.size()>=aIndex)
+			return null;
+		return mItems.get(aIndex);
 	}
 
 	@Override
@@ -323,6 +354,19 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		switch (vAction) {
 		case CREATE:
 			if (isLongClick) {
+				if(rectPolygon!=null){
+					updateSurveyPolygon(rectPolygon,false);
+				}
+			} else {
+				MissionItem mItem = missionHasItem(0);
+				if(mItem!=null){	
+					if(getItemDetailFragment()==null)
+						showItemDetail(mItem);
+					else
+						removeItemDetail();
+				} else {
+					
+				}
 			}
 			break;
 		case DELETE:
