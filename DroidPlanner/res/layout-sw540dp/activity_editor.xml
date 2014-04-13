@@ -24,7 +24,7 @@
 
     <fragment
         android:id="@+id/editorToolsFragment"
-        android:name="org.droidplanner.fragments.EditorToolsFragment"
+        android:name="org.droidplanner.fragments.RectangleEditorFragment"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_above="@+id/missionFragment1"
