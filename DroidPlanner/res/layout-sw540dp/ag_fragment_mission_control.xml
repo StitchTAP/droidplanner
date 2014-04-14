@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/contentLayoutMissionControl"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_horizontal"
+    android:orientation="horizontal" >
+
+	<Button
+	    android:id="@+id/mc_joystickBtn"
+	    style="@style/flightControlButton"
+	    android:layout_width="75dp"
+	    android:layout_height="match_parent"
+	    android:drawableTop="@drawable/ic_control"
+		android:visibility="gone"
+        android:layout_weight="1"
+	    android:text="@string/mission_control_control" />
+
+	<Button
+	    android:id="@+id/mc_planningBtn"
+	    style="@style/flightControlButton"
+	    android:layout_width="120dp"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    android:drawableTop="@drawable/ic_edit"
+	    android:text="@string/ag_mission_control_set_flight_path" />
+
+	<Button
+	    android:id="@+id/mc_takeoff"
+	    style="@style/flightControlButton"
+	    android:layout_width="120dp"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    android:drawableTop="@drawable/ic_takeoff"
+	    android:text="@string/ag_mission_control_commence_flight"
+	    android:visibility="visible"
+	    tools:ignore="ContentDescription" />
+
+	<Button
+	    android:id="@+id/mc_homeBtn"
+	    style="@style/flightControlButton"
+	    android:layout_width="120dp"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    android:drawableTop="@drawable/ic_home"
+	    android:text="@string/ag_mission_abort_and_RTL"
+	    android:textColor="#ffffff" />
+
+	<Button
+	    android:id="@+id/mc_land"
+	    style="@style/flightControlButton"
+	    android:layout_width="120dp"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    android:drawableTop="@drawable/ic_land"
+	    android:text="@string/ag_mission_control_emergency_land"
+	    android:textColor="#ff4444"
+	    android:textStyle="bold"
+	    tools:ignore="ContentDescription" />
+
+	<Button
+	    android:id="@+id/mc_loiter"
+	    style="@style/flightControlButton"
+	    android:layout_width="75dp"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    android:drawableTop="@drawable/ic_loiter"
+	    android:text="@string/mission_control_loiter"
+	    android:visibility="gone"
+	    tools:ignore="ContentDescription" />
+
+	<Button
+	    android:id="@+id/mc_follow"
+	    style="@style/flightControlButton"
+	    android:layout_width="75dp"
+	    android:layout_height="match_parent"
+	    android:layout_weight="1"
+	    android:drawableTop="@drawable/ic_follow"
+	    android:text="@string/mission_control_follow"
+	    android:visibility="gone"
+	    tools:ignore="ContentDescription" />
+
+</LinearLayout>

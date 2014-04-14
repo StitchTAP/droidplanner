@@ -23,25 +23,13 @@
         />
 
     <fragment
-        android:id="@+id/editorToolsFragment"
+        android:id="@+id/rectangleEditorFragment"
         android:name="org.droidplanner.fragments.RectangleEditorFragment"
         android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/missionFragment1"
-        android:layout_centerVertical="true"
-        android:layout_below="@+id/editorInfoWindow"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_margin="5dp"
-        tools:layout="@layout/fragment_editor_tools" />
-
-    <fragment
-        android:id="@+id/missionFragment1"
-        android:name="org.droidplanner.fragments.EditorListFragment"
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/editor_mission_fragment_height"
+        android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        tools:layout="@layout/fragment_editor_list"
-        />
+        android:layout_centerHorizontal="true"
+        android:layout_margin="5dp"
+        tools:layout="@layout/ag_fragment_rectangle_editor" />
 
 </RelativeLayout>

@@ -47,7 +47,7 @@ public class FlightActivity extends DrawerNavigationUI implements
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_flight);
+		setContentView(R.layout.ag_activity_flight);
 
 		fragmentManager = getSupportFragmentManager();
 		failsafeTextView = findViewById(R.id.failsafeTextView);
