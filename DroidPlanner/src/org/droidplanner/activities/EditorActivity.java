@@ -70,6 +70,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	private LatLng mOrigin;
 	private SurveyData surveyData = new SurveyData();
 	private DroneMarker droneMarker;
+	static int SURVEYINDEX = 1;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -111,7 +112,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
 						| WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-		Survey s = (Survey) missionHasItem(1);
+		Survey s = getSurveyItem();
 		if(s!=null)
 			try {
 				updateSurveyPolygon(s.polygon.getLatLngList());
@@ -210,7 +211,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	@Override
 	public void OnRectValueChanged(double vForward, double vLateral) {
-		if (missionHasItem(1) != null && surveyPolygon == null) {
+		if (getSurveyItem() != null && surveyPolygon == null) {
 
 		}
 		updateRectangle(vForward, vLateral);
@@ -244,13 +245,14 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		case CREATE:
 			if (isLongClick) {
 				if (rectPolygon != null) {
-					if (missionHasItem(1) != null)
+					if (getSurveyItem() != null)
 						doUploadSurveyConfirmation();
 					else
 						updateSurveyPoints(rectPolygon, false);
 				}
 			} else {
-				MissionItem mItem = missionHasItem(1);
+				MissionItem mItem = getSurveyItem();
+				Log.d("EDITOR", mItem==null?"null":"ok");
 				if (mItem != null) {
 					if (getItemDetailFragment() == null)
 						showItemDetail(mItem);
@@ -396,7 +398,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	// helpers--------------------------------------------------------------------
 	private void updateSurveyPoints(Polygon vRectPolygon,
 			boolean updateSurveyData) {
-		Survey survey = (Survey) missionHasItem(1);
+		Survey survey = getSurveyItem();
 
 		if (survey != null) {
 			surveyData = survey.surveyData;
@@ -408,7 +410,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		// Add the survey waypoints
 		mission.addSurveyPolygon(vRectPolygon.getPoints());
 		if (survey != null && updateSurveyData) {
-			survey = (Survey) missionHasItem(1);
+			survey = getSurveyItem();
 			survey.surveyData = surveyData;
 			mission.notifiyMissionUpdate();
 		}
@@ -442,11 +444,14 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		}
 	}
 
-	private MissionItem missionHasItem(int aIndex) {
+	private Survey getSurveyItem() {
 		List<MissionItem> mItems = mission.getItems();
-		if (mItems.size() <= 0 || mItems.size() <= aIndex)
-			return null;
-		return mItems.get(aIndex);
+		
+		if(mItems.size()>0 && SURVEYINDEX < mItems.size()){
+			if(mItems.get(SURVEYINDEX).getClass().getName().contains("Survey"))
+				return (Survey) mItems.get(SURVEYINDEX);
+		}
+		return null;
 	}
 
 	// Local Methods : Confirmation
