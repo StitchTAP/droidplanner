@@ -10,8 +10,11 @@ import org.droidplanner.drone.Drone;
 import org.droidplanner.drone.DroneInterfaces.DroneEventsType;
 import org.droidplanner.drone.variables.mission.Mission;
 import org.droidplanner.drone.variables.mission.MissionItem;
+import org.droidplanner.drone.variables.mission.commands.ReturnToHome;
 import org.droidplanner.drone.variables.mission.survey.Survey;
 import org.droidplanner.drone.variables.mission.survey.SurveyData;
+import org.droidplanner.drone.variables.mission.waypoints.Land;
+import org.droidplanner.drone.variables.mission.waypoints.Takeoff;
 import org.droidplanner.fragments.EditorMapFragment;
 import org.droidplanner.fragments.RectangleEditorFragment;
 import org.droidplanner.fragments.RectangleEditorFragment.OnRectangleEditorEvent;
@@ -61,7 +64,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	private TextView infoView;
 
 	private View mContainerItemDetail;
-	private Polygon rectPolygon;
+	private Polygon rectPolygon, surveyPolygon;
 	private double mBearing;
 	private double mForward = 20.0, mLateral = 20.0;
 	private LatLng mOrigin;
@@ -98,7 +101,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		gestureMapFragment.disableGestureDetection();
 
 		mBearing = 0;
-		droneMarker = new DroneMarker(drone,planningMapFragment.mMap);
+		droneMarker = new DroneMarker(drone, planningMapFragment.mMap);
 	}
 
 	@Override
@@ -108,6 +111,15 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
 						| WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+		Survey s = (Survey) missionHasItem(1);
+		if(s!=null)
+			try {
+				updateSurveyPolygon(s.polygon.getLatLngList());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
 		OnRectValueChanged(mForward, mLateral);
 	}
 
@@ -138,7 +150,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		super.onDroneEvent(event, drone);
 		switch (event) {
 		case GPS:
-			OnRectValueChanged(mForward, mLateral);
+			updateRectangle(mForward, mLateral);
 			break;
 		default:
 			break;
@@ -198,10 +210,23 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	@Override
 	public void OnRectValueChanged(double vForward, double vLateral) {
+		if (missionHasItem(1) != null && surveyPolygon == null) {
+
+		}
+		updateRectangle(vForward, vLateral);
+
+	}
+
+	private void updateRectangle(double vForward, double vLateral) {
 		mForward = vForward;
 		mLateral = vLateral;
+
 		if (drone.GPS.getSatCount() <= 0) {
 			Location loc = getLocation();
+
+			if (loc == null)
+				return;
+
 			mOrigin = new LatLng(loc.getLatitude(), loc.getLongitude());
 		} else {
 			mOrigin = drone.GPS.getPosition();
@@ -209,8 +234,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 		mBearing = drone.navigation.getNavBearing();
 
-		drawRectangle(mOrigin, mBearing, mForward, mLateral);
-
+		updateRectPolygon(mOrigin, mBearing, mForward, mLateral);
 	}
 
 	@Override
@@ -220,13 +244,13 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		case CREATE:
 			if (isLongClick) {
 				if (rectPolygon != null) {
-					if (missionHasItem(0) != null)
+					if (missionHasItem(1) != null)
 						doUploadSurveyConfirmation();
 					else
-						updateSurveyPolygon(rectPolygon, false);
+						updateSurveyPoints(rectPolygon, false);
 				}
 			} else {
-				MissionItem mItem = missionHasItem(0);
+				MissionItem mItem = missionHasItem(1);
 				if (mItem != null) {
 					if (getItemDetailFragment() == null)
 						showItemDetail(mItem);
@@ -329,13 +353,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	// Local Methods : Rectangle
 	// Drawing--------------------------------------------------------------------
-	private void drawRectangle(LatLng vOrigin, double vBearing,
+	private void updateRectPolygon(LatLng vOrigin, double vBearing,
 			double vForward, double vLateral) {
-		GoogleMap map = planningMapFragment.mMap;
-		Log.d("RECT", String.format(
-				"Lat/Lng: %f/%f\n Bearing: %f\n Fwd/Lat: %f %f",
-				vOrigin.latitude, vOrigin.longitude, vBearing, vForward,
-				vLateral));
 
 		LatLng l0 = GeoTools.newCoordFromBearingAndDistance(vOrigin,
 				vBearing - 90, vLateral / 2);
@@ -349,37 +368,83 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		if (rectPolygon != null)
 			rectPolygon.remove();
 
-		rectPolygon = map.addPolygon(new PolygonOptions().add(l0, l1, l2, l3)
-				.strokeColor(Color.RED).strokeWidth((float) 2.0)
-				.fillColor(0x330000ff));
+		rectPolygon = doDrawRectangle(l0, l1, l2, l3, Color.RED, 0x330000ff);
+	}
 
-		if (missionHasItem(0) != null) {
-			updateSurveyPolygon(rectPolygon, true);
-		}
+	private void updateSurveyPolygon(List<LatLng> polygonPoints) {
+		if (polygonPoints == null || polygonPoints.size() != 5)
+			return;
+
+		if (surveyPolygon != null)
+			surveyPolygon.remove();
+
+		surveyPolygon = doDrawRectangle(polygonPoints.get(0),
+				polygonPoints.get(1), polygonPoints.get(2),
+				polygonPoints.get(3), Color.YELLOW, 0x3300ff00);
+	}
+
+	private Polygon doDrawRectangle(LatLng l0, LatLng l1, LatLng l2, LatLng l3,
+			int cStroke, int cFill) {
+		GoogleMap map = planningMapFragment.mMap;
+		return map
+				.addPolygon(new PolygonOptions().add(l0, l1, l2, l3)
+						.strokeColor(cStroke).strokeWidth((float) 2.0)
+						.fillColor(cFill));
 	}
 
 	// Local Methods : Survey Mission items
 	// helpers--------------------------------------------------------------------
-	private void updateSurveyPolygon(Polygon vRectPolygon,
+	private void updateSurveyPoints(Polygon vRectPolygon,
 			boolean updateSurveyData) {
-		Survey survey = (Survey) missionHasItem(0);
+		Survey survey = (Survey) missionHasItem(1);
 
 		if (survey != null) {
 			surveyData = survey.surveyData;
 			mission.clear();
 		}
+		// Add a waypoint for takeoff
+		mission.addWaypoint(mOrigin);
 
+		// Add the survey waypoints
 		mission.addSurveyPolygon(vRectPolygon.getPoints());
 		if (survey != null && updateSurveyData) {
-			survey = (Survey) missionHasItem(0);
+			survey = (Survey) missionHasItem(1);
 			survey.surveyData = surveyData;
 			mission.notifiyMissionUpdate();
+		}
+
+		// Addd another waypoint for RTL
+		mission.addWaypoint(mOrigin);
+
+		MissionItem cItem;
+		MissionItem mItem;
+
+		// Get the first waypoint and change to Takeoff
+		try {
+			cItem = mission.getItems().get(0);
+			mItem = new Takeoff(cItem);
+			mission.replace(cItem, mItem);
+		} catch (Exception e) {
+			Log.d("EDITOR", "Failed to create Takeoff waypoint");
+		}
+
+		// Get the last waypoint and change to RTL
+		try {
+			cItem = mission.getItems().get(mission.getItems().size() - 1);
+			mItem = new ReturnToHome(cItem);
+			mission.replace(cItem, mItem);
+		} catch (Exception e) {
+			Log.d("EDITOR", "Failed to create RTL waypoint");
+		}
+
+		if (!updateSurveyData) {
+			updateSurveyPolygon(rectPolygon.getPoints());
 		}
 	}
 
 	private MissionItem missionHasItem(int aIndex) {
 		List<MissionItem> mItems = mission.getItems();
-		if (mItems.size() <= 0 && mItems.size() >= aIndex)
+		if (mItems.size() <= 0 || mItems.size() <= aIndex)
 			return null;
 		return mItems.get(aIndex);
 	}
@@ -394,6 +459,8 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 					@Override
 					public void onYes() {
 						mission.clear();
+						if (surveyPolygon != null)
+							surveyPolygon.remove();
 					}
 
 					@Override
