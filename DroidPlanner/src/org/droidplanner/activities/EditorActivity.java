@@ -11,6 +11,7 @@ import org.droidplanner.drone.DroneInterfaces.DroneEventsType;
 import org.droidplanner.drone.variables.mission.Mission;
 import org.droidplanner.drone.variables.mission.MissionItem;
 import org.droidplanner.drone.variables.mission.commands.ReturnToHome;
+import org.droidplanner.drone.variables.mission.commands.SetCamTriggerDist;
 import org.droidplanner.drone.variables.mission.survey.Survey;
 import org.droidplanner.drone.variables.mission.survey.SurveyData;
 import org.droidplanner.drone.variables.mission.waypoints.Takeoff;
@@ -69,7 +70,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	private LatLng mOrigin;
 	private SurveyData surveyData = new SurveyData();
 	private DroneMarker droneMarker;
-	static int SURVEYINDEX = 1;
+	static int SURVEYINDEX = 2;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -405,6 +406,9 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		// Add a waypoint for takeoff
 		mission.addWaypoint(mOrigin);
 
+		// Add another waypoint for CAMTriggerDist = wpDistance
+		mission.addWaypoint(mOrigin);
+
 		// Add the survey waypoints
 		mission.addSurveyPolygon(vRectPolygon.getPoints());
 		if (survey != null && updateSurveyData) {
@@ -413,11 +417,33 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 			mission.notifiyMissionUpdate();
 		}
 
-		// Addd another waypoint for RTL
+		// Add another waypoint for CAMTriggerDist = 0
 		mission.addWaypoint(mOrigin);
+
+		// Add another waypoint for RTL
+		mission.addWaypoint(mOrigin);
+
 
 		MissionItem cItem;
 		MissionItem mItem;
+
+		// Get the second waypoint and change to setCamTriggerDist
+		try {
+			cItem = mission.getItems().get(1);
+			mItem = new SetCamTriggerDist(cItem);
+			mission.replace(cItem, mItem);
+		} catch (Exception e) {
+			Log.d("EDITOR", "Failed to create SetCamTriggerDist waypoint");
+		}
+
+		// Get the second last waypoint and change to setCamTriggerDist
+		try {
+			cItem = mission.getItems().get(mission.getItems().size()-2);
+			mItem = new SetCamTriggerDist(cItem);
+			mission.replace(cItem, mItem);
+		} catch (Exception e) {
+			Log.d("EDITOR", "Failed to create SetCamTriggerDist waypoint");
+		}
 
 		// Get the first waypoint and change to Takeoff
 		try {
@@ -451,7 +477,17 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		}
 		return null;
 	}
+	
+	
+	private void updateCamTriggerDist(){
+		Survey survey = getSurveyItem();
+		SetCamTriggerDist camTrigg = (SetCamTriggerDist) mission.getItems().get(1);
+		
+		float Dist = (float) survey.surveyData.getLateralPictureDistance().valueInMeters();
+		camTrigg.setDistance(Dist);			
+		Log.d("EDITOR", "Tiegger Dist: " + String.valueOf(camTrigg.getDistance()));
 
+	}
 	// Local Methods : Confirmation
 	// dialogs--------------------------------------------------------------------
 	private void doClearMissionConfirmation() {
@@ -481,6 +517,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 				new YesNoDialog.Listener() {
 					@Override
 					public void onYes() {
+						updateCamTriggerDist();
 						drone.mission.sendMissionToAPM();
 					}
 
