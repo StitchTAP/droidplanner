@@ -9,10 +9,11 @@ import com.MAVLink.Messages.ardupilotmega.msg_mission_item;
 import com.MAVLink.Messages.enums.MAV_CMD;
 
 public class SetCamTriggerDist extends MissionCMD {
-	private int Distance;
+	private float Distance;
 
 	public SetCamTriggerDist(MissionItem item) {
 		super(item);
+		Distance = 0;
 	}
 
 	public SetCamTriggerDist(msg_mission_item msg, Mission mission) {
@@ -25,11 +26,11 @@ public class SetCamTriggerDist extends MissionCMD {
 		return null;
 	}
 
-	public int getDistance() {
+	public float getDistance() {
 		return this.Distance;
 	}
 
-	public void setDistance(int aDistance) {
+	public void setDistance(float aDistance) {
 		this.Distance = aDistance;
 	}
 
@@ -44,6 +45,6 @@ public class SetCamTriggerDist extends MissionCMD {
 
 	@Override
 	public void unpackMAVMessage(msg_mission_item mavMessageItem) {
-		setDistance((int) mavMessageItem.param1);
+		setDistance(mavMessageItem.param1);
 	}
 }
