@@ -13,7 +13,6 @@ import org.droidplanner.drone.variables.mission.MissionItem;
 import org.droidplanner.drone.variables.mission.commands.ReturnToHome;
 import org.droidplanner.drone.variables.mission.survey.Survey;
 import org.droidplanner.drone.variables.mission.survey.SurveyData;
-import org.droidplanner.drone.variables.mission.waypoints.Land;
 import org.droidplanner.drone.variables.mission.waypoints.Takeoff;
 import org.droidplanner.fragments.EditorMapFragment;
 import org.droidplanner.fragments.RectangleEditorFragment;
@@ -252,7 +251,6 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 				}
 			} else {
 				MissionItem mItem = getSurveyItem();
-				Log.d("EDITOR", mItem==null?"null":"ok");
 				if (mItem != null) {
 					if (getItemDetailFragment() == null)
 						showItemDetail(mItem);
