@@ -111,17 +111,9 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		super.onResume();
 		getWindow().setSoftInputMode(
 				WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN
-						| WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-		Survey s = getSurveyItem();
-		if(s!=null)
-			try {
-				updateSurveyPolygon(s.polygon.getLatLngList());
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		
-		OnRectValueChanged(mForward, mLateral);
+						| WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
+
+		updateRectangleState();
 	}
 
 	@Override
@@ -354,6 +346,19 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	// Local Methods : Rectangle
 	// Drawing--------------------------------------------------------------------
+	private void updateRectangleState() {
+		Survey s = getSurveyItem();
+		if(s!=null)
+			try {
+				updateSurveyPolygon(s.polygon.getLatLngList());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		OnRectValueChanged(mForward, mLateral);
+	}
+
 	private void updateRectPolygon(LatLng vOrigin, double vBearing,
 			double vForward, double vLateral) {
 
