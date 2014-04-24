@@ -206,6 +206,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		if (getSurveyItem() != null && surveyPolygon == null) {
 
 		}
+		removeItemDetail();
 		updateRectangle(vForward, vLateral);
 
 	}
@@ -214,7 +215,6 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		mForward = vForward;
 		mLateral = vLateral;
 
-		removeItemDetail();
 		if (drone.GPS.getSatCount() <= 0) {
 			Location loc = getLocation();
 
@@ -227,7 +227,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		}
 
 		mBearing = drone.navigation.getNavBearing();
-
+		surveyData.setAngle(mBearing%180);
 		updateRectPolygon(mOrigin, mBearing, mForward, mLateral);
 	}
 
@@ -422,6 +422,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 		// Add the survey waypoints
 		mission.addSurveyPolygon(vRectPolygon.getPoints());
+		survey = getSurveyItem();
 		if (survey != null && updateSurveyData) {
 			survey = getSurveyItem();
 			survey.surveyData = surveyData;
