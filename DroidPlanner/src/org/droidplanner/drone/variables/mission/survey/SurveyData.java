@@ -69,6 +69,10 @@ public class SurveyData {
 		generateInnerWps = state;
 	}
 	
+	public void setAngle(double aAngle){
+		this.angle = aAngle;
+	}
+	
 	public Altitude getAltitude() {
 		return altitude;
 	}
