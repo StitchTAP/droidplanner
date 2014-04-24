@@ -214,6 +214,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		mForward = vForward;
 		mLateral = vLateral;
 
+		removeItemDetail();
 		if (drone.GPS.getSatCount() <= 0) {
 			Location loc = getLocation();
 
@@ -235,27 +236,23 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 		switch (vAction) {
 		case CREATE:
+			MissionItem mItem = getSurveyItem();
 			if (isLongClick) {
 				if (rectPolygon != null) {
-					if (getSurveyItem() != null)
-						doUploadSurveyConfirmation();
-					else
-						updateSurveyPoints(rectPolygon, false);
+					updateSurveyPoints(rectPolygon, true);
+					showSurveyDetail(getSurveyItem());
 				}
+
 			} else {
-				MissionItem mItem = getSurveyItem();
-				if (mItem != null) {
-					if (getItemDetailFragment() == null)
-						showItemDetail(mItem);
-					else
-						removeItemDetail();
-				} else {
+				if (mItem != null)
+					showSurveyDetail(getSurveyItem());
+				else
 					Toast.makeText(this, R.string.ag_editor_rect_info,
 							Toast.LENGTH_SHORT).show();
-				}
 			}
 			break;
 		case DELETE:
+			removeItemDetail();
 			if (isLongClick)
 				doClearMissionConfirmation();
 			else {
@@ -267,6 +264,15 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 			break;
 		}
 
+	}
+
+	private void showSurveyDetail(Survey sItem) {
+		if (sItem != null) {
+			if (getItemDetailFragment() == null)
+				showItemDetail(sItem);
+			else
+				removeItemDetail();
+		}
 	}
 
 	// Local Methods : Mission
@@ -348,27 +354,27 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	// Drawing--------------------------------------------------------------------
 	private void updateRectangleState() {
 		Survey s = getSurveyItem();
-		if(s!=null)
+		if (s != null)
 			try {
 				updateSurveyPolygon(s.polygon.getLatLngList());
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		
+
 		OnRectValueChanged(mForward, mLateral);
 	}
 
 	private void updateRectPolygon(LatLng vOrigin, double vBearing,
 			double vForward, double vLateral) {
 
-		LatLng l0 = GeoTools.newCoordFromBearingAndDistance(vOrigin,
-				vBearing, 0);
+		LatLng l0 = GeoTools.newCoordFromBearingAndDistance(vOrigin, vBearing,
+				0);
 		LatLng l1 = GeoTools.newCoordFromBearingAndDistance(l0, vBearing,
 				vForward);
-		LatLng l2 = GeoTools.newCoordFromBearingAndDistance(l1, vBearing+90,
+		LatLng l2 = GeoTools.newCoordFromBearingAndDistance(l1, vBearing + 90,
 				vLateral);
-		LatLng l3 = GeoTools.newCoordFromBearingAndDistance(l0, vBearing+90,
+		LatLng l3 = GeoTools.newCoordFromBearingAndDistance(l0, vBearing + 90,
 				vLateral);
 
 		if (rectPolygon != null)
@@ -428,7 +434,6 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		// Add another waypoint for RTL
 		mission.addWaypoint(mOrigin);
 
-
 		MissionItem cItem;
 		MissionItem mItem;
 
@@ -443,7 +448,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 		// Get the second last waypoint and change to setCamTriggerDist
 		try {
-			cItem = mission.getItems().get(mission.getItems().size()-2);
+			cItem = mission.getItems().get(mission.getItems().size() - 2);
 			mItem = new SetCamTriggerDist(cItem);
 			mission.replace(cItem, mItem);
 		} catch (Exception e) {
@@ -468,31 +473,32 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 			Log.d("EDITOR", "Failed to create RTL waypoint");
 		}
 
-		if (!updateSurveyData) {
 			updateSurveyPolygon(rectPolygon.getPoints());
-		}
 	}
 
 	private Survey getSurveyItem() {
 		List<MissionItem> mItems = mission.getItems();
-		
-		if(mItems.size()>0 && SURVEYINDEX < mItems.size()){
-			if(mItems.get(SURVEYINDEX).getClass().getName().contains("Survey"))
+
+		if (mItems.size() > 0 && SURVEYINDEX < mItems.size()) {
+			if (mItems.get(SURVEYINDEX).getClass().getName().contains("Survey"))
 				return (Survey) mItems.get(SURVEYINDEX);
 		}
 		return null;
 	}
-	
-	
-	private void updateCamTriggerDist(){
+
+	private void updateCamTriggerDist() {
 		Survey survey = getSurveyItem();
-		SetCamTriggerDist camTrigg = (SetCamTriggerDist) mission.getItems().get(1);
-		
-		float Dist = (float) survey.surveyData.getLateralPictureDistance().valueInMeters();
-		camTrigg.setDistance(Dist);			
-		Log.d("EDITOR", "Tiegger Dist: " + String.valueOf(camTrigg.getDistance()));
+		SetCamTriggerDist camTrigg = (SetCamTriggerDist) mission.getItems()
+				.get(1);
+
+		float Dist = (float) survey.surveyData.getLateralPictureDistance()
+				.valueInMeters();
+		camTrigg.setDistance(Dist);
+		Log.d("EDITOR",
+				"Tiegger Dist: " + String.valueOf(camTrigg.getDistance()));
 
 	}
+
 	// Local Methods : Confirmation
 	// dialogs--------------------------------------------------------------------
 	private void doClearMissionConfirmation() {
