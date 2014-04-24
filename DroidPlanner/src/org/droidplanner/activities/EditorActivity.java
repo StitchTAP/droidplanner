@@ -363,13 +363,13 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 			double vForward, double vLateral) {
 
 		LatLng l0 = GeoTools.newCoordFromBearingAndDistance(vOrigin,
-				vBearing - 90, vLateral / 2);
-		LatLng l1 = GeoTools.newCoordFromBearingAndDistance(l0, vBearing + 90,
+				vBearing, 0);
+		LatLng l1 = GeoTools.newCoordFromBearingAndDistance(l0, vBearing,
+				vForward);
+		LatLng l2 = GeoTools.newCoordFromBearingAndDistance(l1, vBearing+90,
 				vLateral);
-		LatLng l2 = GeoTools.newCoordFromBearingAndDistance(l1, vBearing,
-				vForward);
-		LatLng l3 = GeoTools.newCoordFromBearingAndDistance(l0, vBearing,
-				vForward);
+		LatLng l3 = GeoTools.newCoordFromBearingAndDistance(l0, vBearing+90,
+				vLateral);
 
 		if (rectPolygon != null)
 			rectPolygon.remove();
