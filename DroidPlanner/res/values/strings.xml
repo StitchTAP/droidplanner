@@ -364,14 +364,14 @@
     <string name="ag_mission_control_emergency_land">Emergency Land</string>
     <string name="ag_mission_control_set_flight_path">Set Flight Path</string>
     <string name="ag_mission_control_commence_flight">Commence Flight</string>
-    <string name="ag_editor_rectangle">Edit / Upload Survey</string>
+    <string name="ag_editor_rectangle">Create / Edit Survey</string>
     <string name="ag_editor_trash">Delete Survey Data</string>
     <string name="ag_editor_forward_travel">Forward Travel</string>
     <string name="ag_editor_lateral_travel">Lateral Travel</string>
     <string name="ag_editor_rect_unit">m</string>
     <string name="ag_editor_rect_defvalue">20.0</string>
     <string name="ag_editor_trash_info">Long-click to delete survey points</string>
-    <string name="ag_editor_rect_info">Long-click to create survey points and later to upload to vehicle</string>
+    <string name="ag_editor_rect_info">Long-click to create survey points. Short-click to edit</string>
     <string name="ag_editor_rect_dlg_create_title">Create Survey Data</string>
     <string name="ag_editor_rect_dlg_create">Press OK to create the Survey points. \nExisting Survey will be over written</string>
     <string name="ag_editor_rect_dlg_upload_title">Upload Survey Data</string>
