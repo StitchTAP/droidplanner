@@ -239,6 +239,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 			MissionItem mItem = getSurveyItem();
 			if (isLongClick) {
 				if (rectPolygon != null) {
+					removeItemDetail();
 					updateSurveyPoints(rectPolygon, true);
 					showSurveyDetail(getSurveyItem());
 				}
