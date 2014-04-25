@@ -1,5 +1,7 @@
 package org.droidplanner.service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,6 +35,7 @@ public class MAVLinkClient {
 
 	Context parent;
 	private OnMavlinkClientListener listener;
+	private List<OnMavlinkTimeOutListener> timeOutListener;
 	Messenger mService = null;
 	final Messenger mMessenger = new Messenger(new IncomingHandler());
 	private boolean mIsBound;
@@ -50,10 +53,15 @@ public class MAVLinkClient {
 
 		void notifyTimeOut(int timeOutCount);
 	}
+	
+	public interface OnMavlinkTimeOutListener{
+		public void notifyMavLinkTimeOut(int timeOutCount);
+	}
 
 	public MAVLinkClient(Context context, OnMavlinkClientListener listener) {
 		parent = context;
 		this.listener = listener;
+		timeOutListener = new ArrayList<OnMavlinkTimeOutListener>();
 	}
 
 	public void init() {
@@ -84,7 +92,19 @@ public class MAVLinkClient {
 			}
 		}
 	}
-
+	
+	public void registerTimeOutListener(OnMavlinkTimeOutListener aListener){
+		if(timeOutListener.contains(aListener))
+				return;
+		
+		timeOutListener.add(aListener);
+	}
+	
+	public void unRegisterTimeOutListener(OnMavlinkTimeOutListener aListener){
+		if(timeOutListener.contains(aListener))
+			timeOutListener.remove(aListener);
+	}
+	
 	public void setTimeOutValue(long timeout_ms) {
 		this.timeOut = timeout_ms;
 	}
@@ -147,6 +167,9 @@ public class MAVLinkClient {
 						 */
 
 						listener.notifyTimeOut(timeOutCount);
+						for(OnMavlinkTimeOutListener tol : timeOutListener){
+							tol.notifyMavLinkTimeOut(timeOutCount);
+						}
 					}
 				}
 			}, timeout_ms); // delay in milliseconds
