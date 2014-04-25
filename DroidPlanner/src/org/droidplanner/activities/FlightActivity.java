@@ -238,6 +238,16 @@ public class FlightActivity extends DrawerNavigationUI implements
 	}
 
 	@Override
+	public void onCommenceFlightSelected() {
+		toggleCommFlightFragment();
+	}
+
+	private void toggleCommFlightFragment() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
 	public void onPlanningSelected() {
         if (mapFragment != null) {
              mapFragment.saveCameraPosition();

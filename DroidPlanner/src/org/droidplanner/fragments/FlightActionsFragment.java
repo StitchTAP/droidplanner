@@ -22,6 +22,8 @@ public class FlightActionsFragment extends Fragment implements	OnClickListener {
 		public void onJoystickSelected();
 
 		public void onPlanningSelected();
+
+		public void onCommenceFlightSelected();
 	}
 
 	private Drone drone;
@@ -89,9 +91,10 @@ public class FlightActionsFragment extends Fragment implements	OnClickListener {
 			drone.state.changeFlightMode(ApmModes.ROTOR_LAND);
 			break;
 		case R.id.mc_takeoff:
+			listener.onCommenceFlightSelected();
 			//drone.state.changeFlightMode(ApmModes.ROTOR_TAKEOFF);
-			Toast.makeText(this.getActivity(), R.string.ag_flight_commence_info,
-					Toast.LENGTH_LONG).show();
+			//Toast.makeText(this.getActivity(), R.string.ag_flight_commence_info,
+			//		Toast.LENGTH_LONG).show();
 			break;
 		case R.id.mc_homeBtn:
 			drone.state.changeFlightMode(ApmModes.ROTOR_RTL);
