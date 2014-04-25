@@ -34,12 +34,14 @@ public class WaypointMananger extends DroneVariable {
 	private int readIndex;
 	private int writeIndex;
 	private int retryIndex;
-	final private int maxRetry = 3; 
+	final private int maxRetry = 3;
 	private OnWaypointManagerListener wpEventListener;
+	private List<OnWaypointManagerListener> wpEventListeners = new ArrayList<OnWaypointManagerListener>();;
 
 	waypointStates state = waypointStates.IDLE;
 
-	public void setWaypointManagerListener(OnWaypointManagerListener wpEventListener) {
+	public void setWaypointManagerListener(
+			OnWaypointManagerListener wpEventListener) {
 		this.wpEventListener = wpEventListener;
 	}
 
@@ -52,7 +54,7 @@ public class WaypointMananger extends DroneVariable {
 		// ensure that WPManager is not doing anything else
 		if (state != waypointStates.IDLE)
 			return;
-		
+
 		doBeginWaypointEvent(WaypointEvent_Type.WP_DOWNLOAD);
 		readIndex = -1;
 		myDrone.MavClient.setTimeOutValue(3000);
@@ -75,7 +77,7 @@ public class WaypointMananger extends DroneVariable {
 		// ensure that WPManager is not doing anything else
 		if (state != waypointStates.IDLE)
 			return;
-		
+
 		if ((mission != null)) {
 			doBeginWaypointEvent(WaypointEvent_Type.WP_UPLOAD);
 			updateMsgIndexes(data);
@@ -90,14 +92,12 @@ public class WaypointMananger extends DroneVariable {
 		}
 	}
 
-	
 	private void updateMsgIndexes(List<msg_mission_item> data) {
 		short index = 0;
 		for (msg_mission_item msg : data) {
 			msg.seq = index++;
 		}
 	}
-
 
 	/**
 	 * Sets the current waypoint in the MAV
@@ -171,7 +171,8 @@ public class WaypointMananger extends DroneVariable {
 			if (msg.msgid == msg_mission_item.MAVLINK_MSG_ID_MISSION_ITEM) {
 				myDrone.MavClient.setTimeOut();
 				processReceivedWaypoint((msg_mission_item) msg);
-				doWaypointEvent(WaypointEvent_Type.WP_DOWNLOAD, readIndex+1, waypointCount);
+				doWaypointEvent(WaypointEvent_Type.WP_DOWNLOAD, readIndex + 1,
+						waypointCount);
 				if (mission.size() < waypointCount) {
 					MavLinkWaypoint.requestWayPoint(myDrone, mission.size());
 				} else {
@@ -190,7 +191,8 @@ public class WaypointMananger extends DroneVariable {
 			if (msg.msgid == msg_mission_request.MAVLINK_MSG_ID_MISSION_REQUEST) {
 				myDrone.MavClient.setTimeOut();
 				processWaypointToSend((msg_mission_request) msg);
-				doWaypointEvent(WaypointEvent_Type.WP_UPLOAD,writeIndex+1,mission.size());
+				doWaypointEvent(WaypointEvent_Type.WP_UPLOAD, writeIndex + 1,
+						mission.size());
 				return true;
 			}
 			break;
@@ -216,21 +218,21 @@ public class WaypointMananger extends DroneVariable {
 		return false;
 	}
 
-
 	public boolean processTimeOut(int mTimeOutCount) {
 
 		// If max retry is reached, set state to IDLE. No more retry.
 		if (mTimeOutCount >= myDrone.MavClient.getTimeOutRetry()) {
 			state = waypointStates.IDLE;
-			doWaypointEvent(WaypointEvent_Type.WP_TIMEDOUT,retryIndex, maxRetry);
+			doWaypointEvent(WaypointEvent_Type.WP_TIMEDOUT, retryIndex,
+					maxRetry);
 			return false;
 		}
-		
+
 		retryIndex++;
-		doWaypointEvent(WaypointEvent_Type.WP_RETRY,retryIndex, maxRetry);
-		
+		doWaypointEvent(WaypointEvent_Type.WP_RETRY, retryIndex, maxRetry);
+
 		myDrone.MavClient.setTimeOut(false);
-		
+
 		switch (state) {
 		default:
 		case IDLE:
@@ -253,7 +255,8 @@ public class WaypointMananger extends DroneVariable {
 			}
 			break;
 		case WAITING_WRITE_ACK:
-			myDrone.MavClient.sendMavPacket(mission.get(mission.size() - 1).pack());
+			myDrone.MavClient.sendMavPacket(mission.get(mission.size() - 1)
+					.pack());
 			break;
 		}
 
@@ -289,21 +292,30 @@ public class WaypointMananger extends DroneVariable {
 	private void doBeginWaypointEvent(WaypointEvent_Type wpEvent) {
 		retryIndex = 0;
 
-		if(wpEventListener==null)
+		for (OnWaypointManagerListener listener : wpEventListeners) {
+			listener.onBeginWaypointEvent(wpEvent);
+		}
+
+		if (wpEventListener == null)
 			return;
 
 		wpEventListener.onBeginWaypointEvent(wpEvent);
 	}
 
 	private void doEndWaypointEvent(WaypointEvent_Type wpEvent) {
-		if(retryIndex>0)//if retry successful, notify that we now continue
-			doWaypointEvent(WaypointEvent_Type.WP_CONTINUE, retryIndex, maxRetry);
+		if (retryIndex > 0)// if retry successful, notify that we now continue
+			doWaypointEvent(WaypointEvent_Type.WP_CONTINUE, retryIndex,
+					maxRetry);
 
 		retryIndex = 0;
 
-		if(wpEventListener==null)
+		for (OnWaypointManagerListener listener : wpEventListeners) {
+			listener.onEndWaypointEvent(wpEvent);
+		}
+
+		if (wpEventListener == null)
 			return;
-		
+
 		wpEventListener.onEndWaypointEvent(wpEvent);
 	}
 
@@ -311,10 +323,25 @@ public class WaypointMananger extends DroneVariable {
 			int count) {
 		retryIndex = 0;
 
-		if(wpEventListener==null)
+		for (OnWaypointManagerListener listener : wpEventListeners) {
+			listener.onWaypointEvent(wpEvent, index, count);
+		}
+
+		if (wpEventListener == null)
 			return;
-		
+
 		wpEventListener.onWaypointEvent(wpEvent, index, count);
+	}
+
+	public void unRegisterWpEventListeners(OnWaypointManagerListener aListeners) {
+		if (wpEventListeners.contains(aListeners))
+			wpEventListeners.remove(aListeners);
+	}
+
+	public void registerWpEventListeners(OnWaypointManagerListener aListeners) {
+		if (wpEventListeners.contains(aListeners))
+			return;
+		wpEventListeners.add(aListeners);
 	}
 
 }
