@@ -15,6 +15,8 @@ import org.droidplanner.drone.variables.mission.commands.SetCamTriggerDist;
 import org.droidplanner.drone.variables.mission.survey.Survey;
 import org.droidplanner.drone.variables.mission.survey.SurveyData;
 import org.droidplanner.drone.variables.mission.waypoints.Takeoff;
+import org.droidplanner.file.IO.CameraInfo;
+import org.droidplanner.file.help.CameraInfoLoader;
 import org.droidplanner.fragments.EditorMapFragment;
 import org.droidplanner.fragments.RectangleEditorFragment;
 import org.droidplanner.fragments.RectangleEditorFragment.OnRectangleEditorEvent;
@@ -70,6 +72,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 	private LatLng mOrigin;
 	private SurveyData surveyData = new SurveyData();
 	private DroneMarker droneMarker;
+	private CameraInfo camInfo;
 	static int SURVEYINDEX = 2;
 
 	@Override
@@ -114,6 +117,9 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 						| WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
 		updateRectangleState();
+		camInfo = getCamInfo();
+		if(camInfo!=null)
+			surveyData.setCameraInfo(camInfo);
 	}
 
 	@Override
@@ -501,6 +507,25 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 
 	}
 
+	private CameraInfo getCamInfo(){
+		CameraInfoLoader loader = new CameraInfoLoader(this);
+		CameraInfo cInfo = null;
+		
+		List<String> cList = loader.getCameraInfoList();
+		for(String str : cList){
+			if(str.contains("ELPH 520")){
+				try {
+					cInfo = loader.openFile(str);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				break;
+			}
+		}
+		return cInfo;
+		
+	}
 	// Local Methods : Confirmation
 	// dialogs--------------------------------------------------------------------
 	private void doClearMissionConfirmation() {
