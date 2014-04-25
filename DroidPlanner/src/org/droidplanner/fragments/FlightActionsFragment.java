@@ -10,13 +10,14 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.MAVLink.Messages.ApmModes;
 
-public class FlightActionsFragment extends Fragment implements	OnClickListener {
+public class FlightActionsFragment extends Fragment implements	OnClickListener, OnLongClickListener {
 
 	public interface OnMissionControlInteraction {
 		public void onJoystickSelected();
@@ -76,6 +77,8 @@ public class FlightActionsFragment extends Fragment implements	OnClickListener {
 		takeoffBtn.setOnClickListener(this);
 		loiterBtn.setOnClickListener(this);
 		followBtn.setOnClickListener(this);
+		
+		takeoffBtn.setOnLongClickListener(this);
 	}
 
 	@Override
@@ -91,10 +94,9 @@ public class FlightActionsFragment extends Fragment implements	OnClickListener {
 			drone.state.changeFlightMode(ApmModes.ROTOR_LAND);
 			break;
 		case R.id.mc_takeoff:
-			listener.onCommenceFlightSelected();
 			//drone.state.changeFlightMode(ApmModes.ROTOR_TAKEOFF);
-			//Toast.makeText(this.getActivity(), R.string.ag_flight_commence_info,
-			//		Toast.LENGTH_LONG).show();
+			Toast.makeText(this.getActivity(), R.string.ag_flight_commence_info,
+					Toast.LENGTH_LONG).show();
 			break;
 		case R.id.mc_homeBtn:
 			drone.state.changeFlightMode(ApmModes.ROTOR_RTL);
@@ -103,6 +105,26 @@ public class FlightActionsFragment extends Fragment implements	OnClickListener {
 			drone.state.changeFlightMode(ApmModes.ROTOR_LOITER);
 			break;
 		}
+	}
+
+	@Override
+	public boolean onLongClick(View v) {
+		switch (v.getId()) {
+		case R.id.mc_planningBtn:
+			break;
+		case R.id.mc_joystickBtn:
+			break;
+		case R.id.mc_land:
+			break;
+		case R.id.mc_takeoff:
+			listener.onCommenceFlightSelected();
+			return true;
+		case R.id.mc_homeBtn:
+			break;
+		case R.id.mc_loiter:
+			break;
+		}
+		return false;
 	}
 
 }
