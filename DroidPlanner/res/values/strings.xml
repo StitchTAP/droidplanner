@@ -376,7 +376,8 @@
     <string name="ag_editor_rect_dlg_create">Press OK to create the Survey points. \nExisting Survey will be over written</string>
     <string name="ag_editor_rect_dlg_upload_title">Upload Survey Data</string>
     <string name="ag_editor_rect_dlg_upload">Survey points will be uploaded to vehicle.\nPress OK to start uploading data</string>
-    <string name="ag_flight_commence_info">This feature will be available in the next release.\nTo commence flight, manually set APM mode to \'Auto\'</string>
+    <string name="ag_flight_commence_info">Long-click to commence flight, manually arm and set APM mode to \'Auto\'</string>
+    <string name="ag_wp_uploading">Uploading survey data to vehicle...</string>
     
     
 </resources>
