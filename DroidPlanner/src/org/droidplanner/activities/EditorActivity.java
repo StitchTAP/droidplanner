@@ -450,6 +450,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 			cItem = mission.getItems().get(1);
 			mItem = new SetCamTriggerDist(cItem);
 			mission.replace(cItem, mItem);
+			updateCamTriggerDist();
 		} catch (Exception e) {
 			Log.d("EDITOR", "Failed to create SetCamTriggerDist waypoint");
 		}
