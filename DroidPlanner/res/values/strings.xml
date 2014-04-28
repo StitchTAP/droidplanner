@@ -3,7 +3,8 @@
 
     <!-- Do not translate the following strings -->
     <string name="app_title">DroidPlanner</string>
-
+    <string name="app_title_stitch">StitchTAP</string>
+    
     <!-- Generic strings -->
     <string name="settings">Settings</string>
     <string name="help">Help</string>

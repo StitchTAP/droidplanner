@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="org.droidplanner"
           android:versionCode="66"
-          android:versionName="please run version.sh to get the version name">
+          android:versionName="StitchTAP">
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -57,8 +57,8 @@
         android:name=".DroidPlannerApp"
         android:allowBackup="true"
         android:hardwareAccelerated="true"
-        android:icon="@drawable/ic_launcher"
-        android:label="@string/app_title"
+        android:icon="@drawable/ic_stitchtap"
+        android:label="@string/app_title_stitch"
         android:theme="@style/CustomActionBarTheme"
         android:windowSoftInputMode="adjustPan" >
 
