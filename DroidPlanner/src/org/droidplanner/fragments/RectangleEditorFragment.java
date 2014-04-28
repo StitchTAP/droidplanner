@@ -10,6 +10,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnFocusChangeListener;
 import android.view.View.OnLongClickListener;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -20,7 +21,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-public class RectangleEditorFragment extends Fragment implements OnClickListener, OnLongClickListener, OnEditorActionListener {
+public class RectangleEditorFragment extends Fragment implements OnClickListener, OnLongClickListener, OnEditorActionListener, OnFocusChangeListener {
 	
 	public enum RectangleEditorAction {
 		CREATE, DELETE, NONE
@@ -74,6 +75,7 @@ public class RectangleEditorFragment extends Fragment implements OnClickListener
 
 		for (EditText vv : new EditText[] { edtFwd, edtLat }) {
 			vv.setOnEditorActionListener(this);
+			vv.setOnFocusChangeListener(this);
 		}
 
 		fwdValue = 20.0;
@@ -175,20 +177,31 @@ public class RectangleEditorFragment extends Fragment implements OnClickListener
 	public boolean onEditorAction(TextView view, int actionId, KeyEvent event) {
         if (actionId == EditorInfo.IME_ACTION_DONE) {
         	closeVirtualKeyboard(view);
-        	
-        	switch(view.getId()){
-        	case R.id.ag_fwd_textedit:
-        		fwdValue =  Double.parseDouble(view.getEditableText().toString());
-        		break;
-        	case R.id.ag_lat_textedit:
-        		latValue =  Double.parseDouble(view.getEditableText().toString());
-        		break;
-        	}
-        	updateListener();
+        	updateValues(view);
+         	updateListener();
             return true;
         }		
         
         return false;
+	}
+
+	@Override
+	public void onFocusChange(View arg0, boolean arg1) {
+		if(!arg1){
+			updateValues((TextView)arg0);
+			updateListener();
+		}
+	}
+
+	private void updateValues(TextView view) {
+       	switch(view.getId()){
+    	case R.id.ag_fwd_textedit:
+    		fwdValue =  Double.parseDouble(view.getEditableText().toString());
+    		break;
+    	case R.id.ag_lat_textedit:
+    		latValue =  Double.parseDouble(view.getEditableText().toString());
+    		break;
+    	}
 	}
 
 	private void updateListener() {
@@ -204,4 +217,5 @@ public class RectangleEditorFragment extends Fragment implements OnClickListener
 		InputMethodManager imm = (InputMethodManager) activity.getSystemService( Context.INPUT_METHOD_SERVICE);
 		imm.hideSoftInputFromWindow(view.getApplicationWindowToken(), 0);		
 	}
+
 }

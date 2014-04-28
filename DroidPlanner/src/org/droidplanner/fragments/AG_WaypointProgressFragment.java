@@ -114,6 +114,7 @@ public class AG_WaypointProgressFragment extends DialogFragment implements OnMav
 		public void onWaypointEvent(WaypointEvent_Type wpEvent, int index,
 				int count) {
 			maxWP = count;
+			progressBar.setMax(maxWP);;
 			if(wpEvent!=WaypointEvent_Type.WP_RETRY && wpEvent!= WaypointEvent_Type.WP_TIMEDOUT)
 				updateProgress(index);
 		}
