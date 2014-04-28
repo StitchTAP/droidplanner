@@ -500,7 +500,7 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		SetCamTriggerDist camTrigg = (SetCamTriggerDist) mission.getItems()
 				.get(1);
 
-		float Dist = (float) survey.surveyData.getLateralPictureDistance()
+		float Dist = (float) survey.surveyData.getLongitudinalPictureDistance()
 				.valueInMeters();
 		camTrigg.setDistance(Dist);
 		Log.d("EDITOR",
