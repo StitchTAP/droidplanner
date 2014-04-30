@@ -4,6 +4,8 @@ import org.droidplanner.R;
 import org.droidplanner.drone.Drone;
 import org.droidplanner.drone.DroneInterfaces.OnWaypointManagerListener;
 import org.droidplanner.drone.variables.mission.WaypointEvent_Type;
+import org.droidplanner.drone.variables.mission.commands.SetCamTriggerDist;
+import org.droidplanner.drone.variables.mission.survey.Survey;
 import org.droidplanner.service.MAVLinkClient.OnMavlinkTimeOutListener;
 
 import android.os.Bundle;
@@ -12,8 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.view.WindowManager;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -79,7 +79,17 @@ public class AG_WaypointProgressFragment extends DialogFragment implements OnMav
 			maxWP = drone.mission.getItems().size();
 			progressBar.setMax(maxWP);
 			updateProgress(0);
+			updateCamTriggerDist();
 			drone.mission.sendMissionToAPM();
+		}
+
+		private void updateCamTriggerDist() {
+			if(drone.mission.getItems().size()<5)
+				return;
+			SetCamTriggerDist mItem = (SetCamTriggerDist) drone.mission.getItems().get(1);
+			Survey sItem = (Survey) drone.mission.getItems().get(2);
+			
+			mItem.setDistance((float) sItem.surveyData.getLongitudinalPictureDistance().valueInMeters());
 		}
 
 		private void updateProgress(int aCount) {

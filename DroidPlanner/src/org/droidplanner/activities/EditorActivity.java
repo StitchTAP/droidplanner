@@ -503,9 +503,6 @@ public class EditorActivity extends SuperUI implements OnPathFinishedListener,
 		float Dist = (float) survey.surveyData.getLongitudinalPictureDistance()
 				.valueInMeters();
 		camTrigg.setDistance(Dist);
-		Log.d("EDITOR",
-				"Tiegger Dist: " + String.valueOf(camTrigg.getDistance()));
-
 	}
 
 	private CameraInfo getCamInfo(){
